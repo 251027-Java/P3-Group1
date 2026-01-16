@@ -1,0 +1,64 @@
+pipeline {
+    agent any
+    
+    tools {
+        jdk 'JDK21' 
+        maven 'maven'
+        //nodejs 'node' 
+    }
+    
+    stages {
+        stage('Hello') {
+            steps {
+                echo 'Pipeline started!'
+                echo "Build number: ${env.BUILD_NUMBER}"
+                echo "Building on: ${env.NODE_NAME}"
+            }
+        }
+        
+        stage('Checkout') {
+            steps {
+                checkout scm
+                echo 'Code checked out from Git'
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                echo '--- Building Eureka Service ---'
+                dir('backend/eureka-server/eureka-server') { sh 'chmod +x mvnw && ./mvnw clean compile' }
+                
+            }
+        }
+        
+        stage('Test') {
+            steps {
+                echo '--- Running Eureka Service Tests ---'
+                dir('backend/eureka-server/eureka-server') { sh './mvnw test' }
+                
+            }
+        }
+        
+        stage('Package') {
+            steps {
+                echo '--- Packaging Eureka Service ---'
+            
+                dir('backend/eureka-server/eureka-server') { sh './mvnw package -DskipTests' }
+                
+        }
+    }
+    
+    post {
+        success {
+            echo '✅ Pipeline completed successfully!'
+        }
+        failure {
+            echo '❌ Pipeline failed! Check the logs.'
+        }
+        always {
+            // Requirement: JUnit test reports
+            junit '**/target/surefire-reports/*.xml'
+            echo 'Pipeline finished.'
+        }
+    }
+}

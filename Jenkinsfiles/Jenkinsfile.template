@@ -1,0 +1,90 @@
+# Jenkinsfile Template for Student Exercise
+# 
+# TODO: Complete the stages below to create a working CI/CD pipeline
+# 
+# This file should be named "Jenkinsfile" (no extension) and placed
+# in the root of your Git repository.
+
+pipeline {
+    agent any
+    
+    tools {
+        jdk 'JDK21' 
+        maven 'maven'
+        nodejs 'node' 
+    }
+    
+    stages {
+        stage('Hello') {
+            steps {
+                echo 'Pipeline started!'
+                echo "Build number: ${env.BUILD_NUMBER}"
+            }
+        }
+        
+        stage('Checkout') {
+            steps {
+                checkout scm
+                echo 'Code checked out from Git'
+            }
+        }
+        
+        stage('Build All Services') {
+            steps {
+                echo '--- Building Backend Services ---'
+                dir('backend/eureka-server') { sh 'chmod +x mvnw && ./mvnw clean compile' }
+                dir('backend/api-gateway') { sh 'chmod +x mvnw && ./mvnw clean compile' }
+                dir('backend/service-1') { sh 'chmod +x mvnw && ./mvnw clean compile' }
+                dir('backend/service-2') { sh 'chmod +x mvnw && ./mvnw clean compile' }
+
+                echo '--- Installing Frontend Dependencies ---'
+                dir('frontend/root-config') { sh 'npm install' }
+                dir('frontend/mfe-react') { sh 'npm install' }
+                dir('frontend/mfe-angular') { sh 'npm install' }
+            }
+        }
+        
+        stage('Test') {
+            steps {
+                echo '--- Running All Tests ---'
+                dir('backend/service-1') { sh './mvnw test' }
+                dir('backend/service-2') { sh './mvnw test' }
+
+                // Running frontend tests
+                dir('frontend/root-config') { sh 'npm test -- --watchAll=false'}
+                dir('frontend/mfe-react') { sh 'npm test -- --watchAll=false' }
+                dir('frontend/mfe-angular') { sh 'npm test -- --watchAll=false' }
+            }
+        }
+        
+        stage('Package') {
+            steps {
+                echo '--- Packaging All Services ---'
+            
+                dir('backend/eureka-server') { sh './mvnw package -DskipTests' }
+                dir('backend/api-gateway') { sh './mvnw package -DskipTests' }
+                dir('backend/service-1') { sh './mvnw package -DskipTests' }
+                dir('backend/service-2') { sh './mvnw package -DskipTests'  }
+
+                echo '--- Building Frontend Production Bundles ---'
+                dir('frontend/root-config') { sh 'npm run build' }
+                dir('frontend/mfe-react') { sh 'npm run build' }
+                dir('frontend/mfe-angular') { sh 'npm run build' }
+            }
+        }
+    }
+    
+    post {
+        success {
+            echo '✅ Pipeline completed successfully!'
+        }
+        failure {
+            echo '❌ Pipeline failed! Check the logs.'
+        }
+        always {
+            // Requirement: JUnit test reports
+            junit '**/target/surefire-reports/*.xml'
+            echo 'Pipeline finished.'
+        }
+    }
+}
