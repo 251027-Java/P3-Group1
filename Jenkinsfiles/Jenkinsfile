@@ -56,8 +56,8 @@ pipeline {
             echo '❌ Pipeline failed! Check the logs.'
         }
         always {
-            // Requirement: JUnit test reports
-            junit '**/target/surefire-reports/*.xml'
+            // JUnit test reports
+            junit 'backend/eureka-server/eureka-server/target/surefire-reports/*.xml'
             echo 'Pipeline finished.'
         }
     }
