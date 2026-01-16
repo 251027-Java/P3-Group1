@@ -44,7 +44,7 @@ pipeline {
                 echo '--- Packaging Eureka Service ---'
             
                 dir('backend/eureka-server/eureka-server') { sh './mvnw package -DskipTests' }
-                
+            }   
         }
     }
     
