@@ -34,8 +34,11 @@ pipeline {
         stage('Test') {
             steps {
                 echo '--- Running Eureka Service Tests ---'
-                dir('backend/eureka-server/eureka-server') { sh './mvnw test' }
-                
+                //dir('backend/eureka-server/eureka-server') { sh './mvnw test' }
+                dir('backend/eureka-server/eureka-server') { 
+                    // Force skipTests to false to ensure the reports are generated
+                    sh './mvnw test -DskipTests=false' 
+                }
             }
         }
         
