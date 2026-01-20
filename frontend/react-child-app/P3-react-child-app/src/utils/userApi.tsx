@@ -179,6 +179,37 @@ class UserApiService {
     }
   }
 
+  // Get token balance for a user (sum of coin transactions)
+  getBalance = async (userId: number): Promise<number> => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/${userId}/balance`);
+      if (!response.ok) throw new Error(`Failed to load balance: ${response.statusText}`);
+      const balance = await response.json();
+      return balance as number;
+    } catch (error) {
+      console.error('Error loading balance:', error);
+      throw error;
+    }
+  }
+
+  // Create a coin transaction (spend or earn tokens). amount: positive to award, negative to spend
+  createTransaction = async (userId: number, amount: number, reason: string): Promise<any> => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/${userId}/transactions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount, reason }),
+      });
+
+      if (!response.ok) throw new Error(`Failed to create transaction: ${response.statusText}`);
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error creating transaction:', error);
+      throw error;
+    }
+  }
+
   getAllUsers = async (): Promise<userDTO[]> => {
     try {
       const response = await fetch(`${API_BASE_URL}/search/allUsers`);

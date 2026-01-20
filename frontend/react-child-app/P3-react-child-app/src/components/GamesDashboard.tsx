@@ -87,7 +87,7 @@ const GamesDashboard = () => {
                       <h4 className="font-bold text-sm">SYSTEM_OVERRIDE_{i}</h4>
                       <p className="text-[10px] text-gray-500 uppercase">Action, Stealth</p>
                     </div>
-                    <span className="text-xs font-mono text-[#822C2C]">$19.99</span>
+                    <span className="text-xs font-mono text-[#822C2C]">Play: 10 tokens</span>
                   </div>
                 </div>
               ))}
