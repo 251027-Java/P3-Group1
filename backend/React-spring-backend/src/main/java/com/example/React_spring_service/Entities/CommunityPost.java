@@ -2,8 +2,9 @@ package com.example.React_spring_service.Entities;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Lob;
+import com.example.React_spring_service.Config.JsonConverter;
 
 import com.example.React_spring_service.Enum.PostType;
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -62,13 +63,15 @@ public class CommunityPost {
 
     // --- JSONB FOR FLEXIBILITY ---
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "jsonb")
+    @Lob
+    @Column(columnDefinition = "TEXT")
+    @Convert(converter = JsonConverter.class)
     @Builder.Default
     private List<String> tags = new ArrayList<>();
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "jsonb")
+    @Lob
+    @Column(columnDefinition = "TEXT")
+    @Convert(converter = JsonConverter.class)
     @Builder.Default
     private List<String> attachments = new ArrayList<>(); // URLs to images, videos, or screenshots
 
