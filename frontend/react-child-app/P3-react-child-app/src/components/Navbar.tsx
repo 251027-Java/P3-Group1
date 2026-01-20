@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useCart } from '../contexts/CartContext';
 
 // Pass props to control the cart state from App.tsx
 interface NavbarProps {
@@ -7,6 +8,9 @@ interface NavbarProps {
 }
 
 function Navbar({ onCartClick, cartCount }: NavbarProps) {
+  const { cartItems, openCart } = useCart();
+  const count = cartItems.length;
+
   return (
     <nav 
       className="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-8 py-4 text-white shadow-lg" 
@@ -22,7 +26,6 @@ function Navbar({ onCartClick, cartCount }: NavbarProps) {
         {/* Navigation Links */}
         <div className="hidden md:flex space-x-8 font-medium italic">
           <Link to="/GamesDashboard" className="hover:opacity-75 transition-opacity">Dashboard</Link>
-          <Link to="/GameInventory" className="hover:opacity-75 transition-opacity">Inventory</Link>
           <Link to="/CommunityHub" className="hover:opacity-75 transition-opacity">Community</Link>
           <Link to="/Rewards" className="hover:opacity-75 transition-opacity">Rewards</Link>
           <Link to="/UploadGame" className="hover:opacity-75 transition-opacity">Upload Game</Link>
@@ -31,13 +34,13 @@ function Navbar({ onCartClick, cartCount }: NavbarProps) {
         <div className="flex items-center space-x-6 border-l border-white/20 pl-8">
           {/* 1. Cart Trigger */}
           <button 
-            onClick={onCartClick}
+            onClick={() => openCart()}
             className="relative p-2 hover:bg-white/10 rounded-full transition-all"
           >
             <span className="text-xl">🛒</span>
-            {cartCount > 0 && (
+            {count > 0 && (
               <span className="absolute -top-1 -right-1 bg-white text-[#822C2C] text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-full shadow-md">
-                {cartCount}
+                {count}
               </span>
             )}
           </button>
