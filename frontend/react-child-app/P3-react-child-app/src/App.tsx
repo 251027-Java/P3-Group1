@@ -1,0 +1,93 @@
+import './App.css'
+// App.tsx
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import IframeWrapper from './iframwrapper/IframeWrapper';
+import Navbar from './components/Navbar';
+import Profile from './components/Profile';
+import GamesDashboard from './components/GamesDashboard';
+import CommunityHub from './components/Community/CommunityHub';
+import CommunityThreads from './components/Community/CommunityThreads';
+import GameProfile from './components/GamePage/GameProfile';
+import Cart from './components/Cart';
+import { useState } from 'react';
+import GameInventory from './components/GamePage/GameInventory';
+import Wishlist from './components/Wishlist';
+import RewardsPage from './components/RewardsPage';
+import UploadGame from './components/UploadGame';
+import UploadWebGame from './components/UploadGame';
+
+function App() {
+  
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [cartItems, setCartItems] = useState([
+    { title: "Cyber Protocol: Red", price: 24.99 },
+    { title: "P3 Stealth Assets", price: 12.00 }
+  ]);
+  
+  return (
+    <Router>
+      <Navbar onCartClick={() => setIsCartOpen(true)} cartCount={cartItems.length}/>
+      
+
+    <div className='pt-[72px]'>
+      <Cart 
+        isOpen={isCartOpen} 
+        onClose={() => setIsCartOpen(false)} 
+        items={cartItems} 
+      />
+      <Routes>
+        <Route path="/*" element={<IframeWrapper baseUrl="http://localhost:4200" />} />
+
+        <Route 
+          path="/profile" 
+          element={<Profile/>} 
+        />
+
+        <Route 
+          path="/GamesDashboard" 
+          element={<GamesDashboard/>} 
+        />
+
+        <Route 
+          path="/CommunityHub" 
+          element={<CommunityHub/>} 
+        />
+
+        <Route 
+          path="/CommunityThreads" 
+          element={<CommunityThreads/>} 
+        />
+
+        <Route 
+          path="/GameProfile" 
+          element={<GameProfile/>} 
+        />
+
+        <Route 
+          path="/GameInventory" 
+          element={<GameInventory/>} 
+        />
+
+        <Route 
+          path="/Wishlist" 
+          element={<Wishlist/>} 
+        />
+
+        <Route 
+          path="/Rewards" 
+          element={<RewardsPage/>} 
+        />
+
+        <Route 
+          path="/UploadGame" 
+          element={<UploadWebGame/>} 
+        />
+
+
+      </Routes>
+    </div>
+    </Router>
+  );
+}
+
+export default App
