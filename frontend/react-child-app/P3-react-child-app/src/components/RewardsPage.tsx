@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const RewardsPage = () => {
   const [userBalance, setUserBalance] = useState(2500);
@@ -24,8 +25,11 @@ const RewardsPage = () => {
         <div className="col-span-12 lg:col-span-8 space-y-6">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-4xl font-black italic uppercase tracking-tighter">Coin_Exchange</h1>
-            <div className="bg-[#822C2C] px-4 py-2 rounded-full flex items-center gap-2 shadow-lg shadow-red-900/20">
-              <span className="text-sm font-bold">🪙 {userBalance.toLocaleString()}</span>
+            <div className="flex items-center gap-4">
+              <div className="bg-[#822C2C] px-4 py-2 rounded-full flex items-center gap-2 shadow-lg shadow-red-900/20">
+                <span className="text-sm font-bold">🪙 {userBalance.toLocaleString()}</span>
+              </div>
+              <Link to="/BuyTokens" className="text-sm font-bold text-[#822C2C] hover:underline">Buy Tokens</Link>
             </div>
           </div>
 

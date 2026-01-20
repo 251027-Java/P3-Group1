@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { userAPI } from '../../utils/userApi';
 
 const GameProfile = () => {
   const [activeTab, setActiveTab] = useState('About');
@@ -36,11 +37,29 @@ const GameProfile = () => {
               {/* Action Bar */}
               <div className="flex items-center gap-4 bg-white/5 p-4 rounded-xl border border-white/10 backdrop-blur-md w-fit">
                 <div className="pr-4 border-r border-white/10">
-                  <p className="text-[10px] text-gray-500 uppercase font-bold">Price</p>
-                  <p className="text-xl font-mono text-[#822C2C]">$24.99</p>
+                  <p className="text-[10px] text-gray-500 uppercase font-bold">Play Cost</p>
+                  <p className="text-xl font-mono text-[#822C2C]">10 tokens</p>
                 </div>
-                <button className="px-8 py-3 bg-[#822C2C] hover:bg-[#a13737] font-bold rounded text-sm transition-all uppercase tracking-widest shadow-lg shadow-red-900/40">
-                  Add to Cart
+                <button onClick={async () => {
+                    const user = userAPI.currentUser;
+                    if(!user || !user.id){
+                      alert('Please sign in to play.');
+                      return;
+                    }
+                    try{
+                      const balance = await userAPI.getBalance(user.id);
+                      if(balance < 10){
+                        alert('You do not have enough tokens. Please purchase tokens.');
+                        return;
+                      }
+                      const res = await userAPI.createTransaction(user.id, -10, 'PLAY: Cyber Protocol');
+                      alert('Play started — 10 tokens deducted. Current balance: ' + res.balance);
+                    } catch(e){
+                      console.error(e);
+                      alert('Could not start play. Try again later.');
+                    }
+                  }} className="px-8 py-3 bg-[#822C2C] hover:bg-[#a13737] font-bold rounded text-sm transition-all uppercase tracking-widest shadow-lg shadow-red-900/40">
+                  Play (10 tokens)
                 </button>
                 <button className="p-3 bg-white/10 hover:bg-white/20 rounded border border-white/10">
                   ❤️

@@ -1,18 +1,33 @@
 package com.example.React_spring_service.Config;
 
-import com.example.React_spring_service.Entities.*;
-import com.example.React_spring_service.Enum.PostType;
-import com.example.React_spring_service.Enum.RewardCategory;
-import com.example.React_spring_service.Enum.UserLevel;
-import com.example.React_spring_service.Repositories.*;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.util.*;
+import com.example.React_spring_service.Entities.CoinTransaction;
+import com.example.React_spring_service.Entities.Comment;
+import com.example.React_spring_service.Entities.CommunityPost;
+import com.example.React_spring_service.Entities.Game;
+import com.example.React_spring_service.Entities.Review;
+import com.example.React_spring_service.Entities.Reward;
+import com.example.React_spring_service.Entities.User;
+import com.example.React_spring_service.Enum.PostType;
+import com.example.React_spring_service.Enum.RewardCategory;
+import com.example.React_spring_service.Enum.UserLevel;
+import com.example.React_spring_service.Repositories.CoinTransactionRepository;
+import com.example.React_spring_service.Repositories.CommentRepository;
+import com.example.React_spring_service.Repositories.CommunityPostRepository;
+import com.example.React_spring_service.Repositories.GameRepository;
+import com.example.React_spring_service.Repositories.ReviewRepository;
+import com.example.React_spring_service.Repositories.RewardRepository;
+import com.example.React_spring_service.Repositories.UserRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
@@ -66,9 +81,7 @@ public class DataSeeder implements CommandLineRunner {
                                 .developer("Neon_Architect")
                                 .publisher("Fleet Games")
                                 .dateReleased(LocalDate.now())
-                                .price(29.99)
-                                .salePercent(15.0)
-                                .onSale(true)
+                                // Games are free to play; token economy is used for plays
                                 .tags(List.of("Cyberpunk", "WebGL", "Hardcore"))
                                 .developerLogs(List.of(Map.of("title", "Version 1.0 Live", "description",
                                                 "Initial web build launch")))

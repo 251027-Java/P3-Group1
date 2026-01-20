@@ -10,31 +10,25 @@ import CommunityThreads from './components/Community/CommunityThreads';
 import GameProfile from './components/GamePage/GameProfile';
 import Cart from './components/Cart';
 import { useState } from 'react';
-import GameInventory from './components/GamePage/GameInventory';
 import Wishlist from './components/Wishlist';
 import RewardsPage from './components/RewardsPage';
 import UploadGame from './components/UploadGame';
 import UploadWebGame from './components/UploadGame';
+import { CartProvider } from './contexts/CartContext';
+import TokenStore from './components/TokenStore';
 
 function App() {
   
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [cartItems, setCartItems] = useState([
-    { title: "Cyber Protocol: Red", price: 24.99 },
-    { title: "P3 Stealth Assets", price: 12.00 }
-  ]);
+  // cart state moved to CartProvider
   
   return (
     <Router>
-      <Navbar onCartClick={() => setIsCartOpen(true)} cartCount={cartItems.length}/>
+      <CartProvider>
+        <Navbar onCartClick={() => {}} cartCount={0} />
       
 
     <div className='pt-[72px]'>
-      <Cart 
-        isOpen={isCartOpen} 
-        onClose={() => setIsCartOpen(false)} 
-        items={cartItems} 
-      />
+      <Cart />
       <Routes>
         <Route path="/*" element={<IframeWrapper baseUrl="http://localhost:4200" />} />
 
@@ -63,10 +57,7 @@ function App() {
           element={<GameProfile/>} 
         />
 
-        <Route 
-          path="/GameInventory" 
-          element={<GameInventory/>} 
-        />
+        {/* Inventory removed: games are free & available on Dashboard */}
 
         <Route 
           path="/Wishlist" 
@@ -78,6 +69,11 @@ function App() {
           element={<RewardsPage/>} 
         />
 
+        <Route
+          path="/BuyTokens"
+          element={<TokenStore />}
+        />
+
         <Route 
           path="/UploadGame" 
           element={<UploadWebGame/>} 
@@ -86,6 +82,7 @@ function App() {
 
       </Routes>
     </div>
+    </CartProvider>
     </Router>
   );
 }
