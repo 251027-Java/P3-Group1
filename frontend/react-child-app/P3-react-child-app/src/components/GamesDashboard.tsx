@@ -27,7 +27,11 @@ const GamesDashboard = () => {
           <h1 className="text-6xl font-black italic uppercase tracking-tighter mb-4">Cyber Protocol: Red</h1>
           <p className="text-gray-400 text-lg mb-8">Experience the next generation of tactical espionage in a world where data is the only currency that matters.</p>
           <div className="flex space-x-4">
-            <button className="px-8 py-3 bg-[#822C2C] hover:bg-[#a13737] font-bold rounded-sm transition-all shadow-lg shadow-red-900/40">INSTALL NOW</button>
+            <button 
+              onClick={() => handleGameClick(1)}
+              className="px-8 py-3 bg-[#822C2C] hover:bg-[#a13737] font-bold rounded-sm transition-all shadow-lg shadow-red-900/40">
+              VIEW GAME
+            </button>
             <button className="px-8 py-3 bg-white/10 hover:bg-white/20 font-bold rounded-sm transition-all border border-white/10"
             onClick={handleWishClick}>WISHLIST</button>
           </div>

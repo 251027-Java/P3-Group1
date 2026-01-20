@@ -59,7 +59,7 @@ function App() {
         />
 
         <Route 
-          path="/GameProfile" 
+          path="/games/:id" 
           element={<GameProfile/>} 
         />
 
