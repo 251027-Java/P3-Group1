@@ -1,15 +1,47 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import type { Game } from './GamePage/Game';
+
+
 
 const GamesDashboard = () => {
   const [activeTag, setActiveTag] = useState('All');
-  const tags = ['Action', 'RPG', 'Strategy', 'Indie', 'Horror', 'Sci-Fi'];
-
+  const [searchTerm, setSearchTerm] = useState('');
+  const tags = ['All', 'Action', 'RPG', 'Strategy', 'Indie', 'Horror', 'Sci-Fi'];
+  const [games, setGames] = useState<Game[]>([]);
   const navigate = useNavigate();
 
-  const handleWishClick = () =>{
-    navigate("/Wishlist")
-  }
+  React.useEffect(() => {
+    fetch('http://localhost:8080/api/games')
+      .then(res => res.json())
+      .then(data => setGames(data))
+      .catch(err => console.error(err));
+  }, []);
+
+  const handleWishClick = () => {
+    navigate("/Wishlist");
+  };
+
+  // Efficient fuzzy search function
+  const filterGames = () => {
+    let filtered: Game[] = games;
+    if (activeTag !== 'All') {
+      filtered = filtered.filter((game: Game) => Array.isArray(game.tags) && game.tags.includes(activeTag));
+    }
+    if (searchTerm.trim() !== '') {
+      const term = searchTerm.trim().toLowerCase();
+      filtered = filtered.filter((game: Game) => {
+        const titleMatch = typeof game.name === 'string' && game.name.toLowerCase().includes(term);
+        const tagsMatch = Array.isArray(game.tags) && game.tags.some((tag: string) => typeof tag === 'string' && tag.toLowerCase().includes(term));
+        return titleMatch || tagsMatch;
+      });
+    }
+    return filtered;
+  };
+
+  const gamesToShow = filterGames();
+
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white">
       {/* 1. Featured Games Carousel (Hero) */}
@@ -41,15 +73,18 @@ const GamesDashboard = () => {
           <div>
             <h3 className="text-xs font-black text-[#822C2C] uppercase tracking-widest mb-4">Search by Tag</h3>
             <div className="relative">
-              <input 
-                type="text" 
-                placeholder="Search games..." 
+              <input
+                type="text"
+                placeholder="Search games..."
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
                 className="w-full bg-[#151515] border border-white/5 rounded-md px-4 py-2 text-sm focus:outline-none focus:border-[#822C2C] transition-all"
+                aria-label="Search games"
               />
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
               {tags.map(tag => (
-                <button 
+                <button
                   key={tag}
                   onClick={() => setActiveTag(tag)}
                   className={`px-3 py-1 text-[10px] font-bold uppercase border rounded-full transition-all ${
@@ -77,20 +112,24 @@ const GamesDashboard = () => {
           <section>
             <h2 className="text-2xl font-bold uppercase tracking-tight mb-6 border-b border-white/5 pb-2">Trending Projects</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {[1, 2, 3, 4, 5, 6].map(i => (
-                <div key={i} className="group bg-[#151515] rounded-md overflow-hidden hover:ring-1 hover:ring-[#822C2C] transition-all">
-                  <div className="aspect-video bg-gray-800 relative">
-                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </div>
-                  <div className="p-4 flex justify-between items-center">
-                    <div>
-                      <h4 className="font-bold text-sm">SYSTEM_OVERRIDE_{i}</h4>
-                      <p className="text-[10px] text-gray-500 uppercase">Action, Stealth</p>
+              {gamesToShow.length === 0 ? (
+                <div className="col-span-3 text-center text-gray-500 py-12">No games found.</div>
+              ) : (
+                gamesToShow.map(game => (
+                  <div key={game.id} className="group bg-[#151515] rounded-md overflow-hidden hover:ring-1 hover:ring-[#822C2C] transition-all">
+                    <div className="aspect-video bg-gray-800 relative">
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
-                    <span className="text-xs font-mono text-[#822C2C]">$19.99</span>
+                    <div className="p-4 flex justify-between items-center">
+                      <div>
+                        <h4 className="font-bold text-sm">{game.name}</h4>
+                        <p className="text-[10px] text-gray-500 uppercase">{game.tags.join(', ')}</p>
+                      </div>
+                      <span className="text-xs font-mono text-[#822C2C]">${game.price.toFixed(2)}</span>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </section>
 
