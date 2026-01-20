@@ -104,7 +104,11 @@ const GamesDashboard = () => {
             </>
           )}
           <div className="flex space-x-4">
-            <button className="px-8 py-3 bg-[#822C2C] hover:bg-[#a13737] font-bold rounded-sm transition-all shadow-lg shadow-red-900/40">INSTALL NOW</button>
+            <button 
+              onClick={() => handleGameClick(1)}
+              className="px-8 py-3 bg-[#822C2C] hover:bg-[#a13737] font-bold rounded-sm transition-all shadow-lg shadow-red-900/40">
+              VIEW GAME
+            </button>
             <button className="px-8 py-3 bg-white/10 hover:bg-white/20 font-bold rounded-sm transition-all border border-white/10"
             onClick={handleWishClick}>WISHLIST</button>
           </div>
@@ -172,6 +176,7 @@ const GamesDashboard = () => {
                       </div>
                       <span className="text-xs font-mono text-[#822C2C]">${game.price.toFixed(2)}</span>
                     </div>
+                    <span className="text-xs font-mono text-[#822C2C]">Play: 10 tokens</span>
                   </div>
                 ))
               )}

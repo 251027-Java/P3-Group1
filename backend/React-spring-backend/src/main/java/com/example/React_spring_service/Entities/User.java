@@ -2,8 +2,9 @@ package com.example.React_spring_service.Entities;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Lob;
+import com.example.React_spring_service.Config.JsonConverter;
 
 import com.example.React_spring_service.Enum.UserLevel;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -48,18 +49,21 @@ public class User {
 
     // --- JSONB (ID LISTS & METADATA) ---
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "jsonb")
+    @Lob
+    @Column(columnDefinition = "TEXT")
+    @Convert(converter = JsonConverter.class)
     @Builder.Default
     private List<Long> gamesInLibrary = new ArrayList<>();
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "jsonb")
+    @Lob
+    @Column(columnDefinition = "TEXT")
+    @Convert(converter = JsonConverter.class)
     @Builder.Default
     private List<Long> wishlist = new ArrayList<>();
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "jsonb")
+    @Lob
+    @Column(columnDefinition = "TEXT")
+    @Convert(converter = JsonConverter.class)
     @Builder.Default
     private List<Map<String, Object>> notifications = new ArrayList<>();
 
