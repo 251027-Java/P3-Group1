@@ -1,0 +1,63 @@
+<div class="min-h-screen bg-[#0f0f0f] text-white selection:bg-[#822C2C]">
+  <section class="relative overflow-hidden pt-32 pb-20 lg:pt-48 lg:pb-32" 
+           style="background: radial-gradient(circle at top right, #822C2C33 0%, #0f0f0f 60%);">
+    <div class="container mx-auto px-6 relative z-10">
+      <div class="max-w-4xl">
+        <h1 class="text-6xl md:text-8xl font-bold tracking-tighter leading-none mb-6">
+          LEVEL UP YOUR <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#822C2C] to-[#ff4d4d]">ENGINE.</span>
+        </h1>
+        <p class="text-gray-400 text-xl md:text-2xl max-w-2xl mb-10 leading-relaxed">
+          The premier marketplace for indie creators. Secure, scalable, and built for the next generation of digital experiences.
+        </p>
+        <div class="flex flex-wrap gap-4">
+          <button class="px-8 py-4 bg-[#822C2C] hover:bg-[#a13737] font-bold rounded-full transition-all transform hover:scale-105">
+            Browse Projects
+          </button>
+          <button class="px-8 py-4 border border-gray-700 hover:border-[#822C2C] font-bold rounded-full transition-all">
+            Submit Your Game
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-20 bg-[#0a0a0a]">
+    <div class="container mx-auto px-6">
+      <div class="flex justify-between items-end mb-12 border-b border-gray-800 pb-6">
+        <h2 class="text-3xl font-bold uppercase tracking-widest">Featured Drops</h2>
+        <a href="#" class="text-[#822C2C] hover:text-white transition-colors">View All &rarr;</a>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div *ngFor="let i of [1,2,3,4,5,6]" 
+             class="group relative bg-[#151515] border border-gray-800 rounded-2xl overflow-hidden hover:border-[#822C2C] transition-all duration-500">
+          <div class="aspect-video bg-gray-800 overflow-hidden">
+             <div class="w-full h-full bg-gradient-to-br from-[#822C2C55] to-black group-hover:scale-110 transition-transform duration-700"></div>
+          </div>
+          <div class="p-6">
+            <div class="flex justify-between items-start mb-2">
+              <h3 class="text-xl font-bold uppercase tracking-tight">Project Delta-{{i}}</h3>
+              <span class="text-xs bg-[#822C2C] px-2 py-1 rounded">NEW</span>
+            </div>
+            <p class="text-gray-500 text-sm mb-6">Procedural space exploration engine with custom physics.</p>
+            <div class="flex justify-between items-center">
+              <span class="text-lg font-mono">$29.99</span>
+              <button class="text-sm font-bold border-b-2 border-[#822C2C] pb-1 group-hover:text-[#822C2C] transition-colors">VIEW PROJECT</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-24 bg-gradient-to-b from-[#0a0a0a] to-[#822C2C11]">
+    <div class="container mx-auto px-6 text-center">
+      <h2 class="text-4xl md:text-6xl font-bold mb-8 italic">READY TO JOIN THE FLEET?</h2>
+      <p class="text-gray-400 mb-12 max-w-xl mx-auto">Start selling your assets or games today with a 95/5 revenue split.</p>
+      <button class="px-12 py-5 bg-white text-black font-black uppercase tracking-tighter hover:bg-[#822C2C] hover:text-white transition-all"
+        (click)="handleGetStarted()">
+        Get Started Now
+      </button>
+    </div>
+  </section>
+</div>

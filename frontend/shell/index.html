@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Microfrontend Shell</title>
+    <style>
+        body { font-family: sans-serif; display: flex; margin: 0; height: 100vh; }
+        nav { width: 200px; background: #333; color: white; padding: 20px; }
+        nav a { display: block; color: white; margin-bottom: 10px; cursor: pointer; }
+        .content { flex-grow: 1; position: relative; }
+        iframe { width: 100%; height: 100%; border: none; position: absolute; top: 0; left: 0; display: none; }
+        iframe.active { display: block; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <h3>My Apps</h3>
+    <a onclick="showApp('react')">React App (Port 8080)</a>
+    <a onclick="showApp('angular')">Angular App (Port 4200)</a>
+</nav>
+
+<div class="content">
+    <iframe id="react-frame" src="http://localhost:5173"></iframe>
+    <iframe id="angular-frame" src="http://localhost:4200"></iframe>
+</div>
+
+<script>
+    function showApp(appName) {
+        // Hide all frames
+        document.querySelectorAll('iframe').forEach(f => f.classList.remove('active'));
+        
+        // Show the selected one
+        if (appName === 'react') {
+            document.getElementById('react-frame').classList.add('active');
+        } else if (appName === 'angular') {
+            document.getElementById('angular-frame').classList.add('active');
+        }
+    }
+    // Start with React
+    showApp('react');
+</script>
+
+</body>
+</html>

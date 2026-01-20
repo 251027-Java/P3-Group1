@@ -1,0 +1,71 @@
+<div class="flex min-h-screen bg-[#0a0a0a] text-white">
+  
+  <div class="hidden lg:flex w-1/2 relative flex-col justify-center px-12 overflow-hidden" 
+       style="background: linear-gradient(135deg, #822C2C 0%, #4a0e0e 100%);">
+    <div class="absolute top-[-10%] right-[-10%] w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
+    
+    <div class="relative z-10">
+      <h1 class="text-7xl font-black tracking-tighter mb-4 italic">P3 FLEET</h1>
+      <p class="text-2xl text-red-200/80 max-w-md font-light">
+        The nexus for independent developers and digital explorers.
+      </p>
+    </div>
+
+    <div class="absolute bottom-12 left-12 flex items-center space-x-4 opacity-50">
+      <div class="h-1 w-12 bg-white"></div>
+      <span class="text-xs uppercase tracking-widest">Established 2026</span>
+    </div>
+  </div>
+
+  <div class="w-full lg:w-1/2 flex flex-col justify-center px-8 sm:px-16 lg:px-24">
+    <div class="max-w-md w-full mx-auto">
+      <div class="mb-10">
+        <h2 class="text-4xl font-bold mb-2">Welcome Back</h2>
+        <p class="text-gray-500">Please enter your credentials to access the cockpit.</p>
+      </div>
+
+      <form class="space-y-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-400 mb-2">Identity (Email)</label>
+          <input type="email" 
+                 class="w-full px-4 py-3 bg-[#151515] border border-gray-800 rounded-lg focus:ring-2 focus:ring-[#822C2C] focus:border-transparent outline-none transition-all"
+                 placeholder="name@example.com">
+        </div>
+
+        <div>
+          <div class="flex justify-between mb-2">
+            <label class="block text-sm font-medium text-gray-400">Security Key</label>
+            <a href="#" class="text-sm text-[#822C2C] hover:text-[#a13737]">Forgot?</a>
+          </div>
+          <input type="password" 
+                 class="w-full px-4 py-3 bg-[#151515] border border-gray-800 rounded-lg focus:ring-2 focus:ring-[#822C2C] focus:border-transparent outline-none transition-all"
+                 placeholder="••••••••">
+        </div>
+
+        <div class="pt-4">
+          <button type="submit" 
+                  class="w-full py-4 bg-[#822C2C] hover:bg-[#a13737] font-bold rounded-lg transition-all transform active:scale-[0.98] shadow-lg shadow-red-900/20">
+            INITIALIZE SESSION
+          </button>
+        </div>
+
+        <div class="relative py-4">
+          <div class="absolute inset-0 flex items-center"><span class="w-full border-t border-gray-800"></span></div>
+          <div class="relative flex justify-center text-xs uppercase"><span class="bg-[#0a0a0a] px-2 text-gray-500">Or continue as guest</span></div>
+        </div>
+
+        <div class="flex justify-center">
+          <button type="button" class="flex items-center justify-center py-3 border border-gray-800 rounded-lg hover:bg-[#151515] transition-all p-5 px-20">
+            <span class="text-sm">Guest</span>
+          </button>
+        </div>
+      </form>
+
+      <p class="mt-10 text-center text-sm text-gray-500">
+        New to the fleet? 
+        <a class="text-[#822C2C] font-bold hover:underline hover:cursor-pointer"
+            (click)="handleCreateAccount()">Create an account</a>
+      </p>
+    </div>
+  </div>
+</div>
