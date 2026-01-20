@@ -1,9 +1,7 @@
-
 import React, { useState } from 'react';
 import type { CommunityPost } from './Community/CommunityPost';
 import { useNavigate } from 'react-router-dom';
 import type { Game } from './GamePage/Game';
-
 
 // Generated with assistance from GPT-4.1
 // Reviewed and modified by Brody Roche
@@ -52,6 +50,10 @@ const GamesDashboard = () => {
     navigate("/Wishlist");
   };
 
+  const handleGameClick = (id: number | string) => {
+    navigate(`/games/${id}`);
+  };
+
   // Efficient fuzzy search function
   const filterGames = () => {
     let filtered: Game[] = games;
@@ -85,7 +87,6 @@ const GamesDashboard = () => {
       <section className="relative h-[500px] w-full overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-transparent to-transparent z-10" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] to-transparent z-10" />
-        {/* Carousel Image/Slide (static image) */}
         <div className="absolute inset-0 bg-[#1a1a1a]">
           <div className="w-full h-full bg-[url('https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=2070')] bg-cover bg-center opacity-40" />
         </div>
@@ -105,7 +106,7 @@ const GamesDashboard = () => {
           )}
           <div className="flex space-x-4">
             <button 
-              onClick={() => handleGameClick(1)}
+              onClick={() => featuredGame && handleGameClick(featuredGame.id)}
               className="px-8 py-3 bg-[#822C2C] hover:bg-[#a13737] font-bold rounded-sm transition-all shadow-lg shadow-red-900/40">
               VIEW GAME
             </button>
@@ -117,20 +118,17 @@ const GamesDashboard = () => {
 
       <div className="px-12 py-10 grid grid-cols-12 gap-8">
         
-        {/* 2. Left Sidebar: Navigation & Filtering */}
+        {/* 2. Left Sidebar */}
         <aside className="col-span-12 lg:col-span-3 space-y-8">
           <div>
             <h3 className="text-xs font-black text-[#822C2C] uppercase tracking-widest mb-4">Search by Tag</h3>
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search games..."
-                value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
-                className="w-full bg-[#151515] border border-white/5 rounded-md px-4 py-2 text-sm focus:outline-none focus:border-[#822C2C] transition-all"
-                aria-label="Search games"
-              />
-            </div>
+            <input
+              type="text"
+              placeholder="Search games..."
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              className="w-full bg-[#151515] border border-white/5 rounded-md px-4 py-2 text-sm focus:outline-none focus:border-[#822C2C] transition-all"
+            />
             <div className="mt-4 flex flex-wrap gap-2">
               {tags.map(tag => (
                 <button
@@ -145,19 +143,10 @@ const GamesDashboard = () => {
               ))}
             </div>
           </div>
-
-          <nav className="space-y-2">
-            <h3 className="text-xs font-black text-[#822C2C] uppercase tracking-widest mb-4">Browse</h3>
-            {['Store Home', 'New Releases', 'Top Sellers', 'Special Offers'].map(link => (
-              <a key={link} href="#" className="block py-2 text-sm text-gray-400 hover:text-white transition-colors">{link}</a>
-            ))}
-          </nav>
         </aside>
 
-        {/* 3. Main Content: Game Grid & Community Hub */}
+        {/* 3. Main Content */}
         <div className="col-span-12 lg:col-span-9 space-y-12">
-          
-          {/* Game Grid Section */}
           <section>
             <h2 className="text-2xl font-bold uppercase tracking-tight mb-6 border-b border-white/5 pb-2">Trending Projects</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -165,18 +154,25 @@ const GamesDashboard = () => {
                 <div className="col-span-3 text-center text-gray-500 py-12">No games found.</div>
               ) : (
                 gamesToShow.map(game => (
-                  <div key={game.id} className="group bg-[#151515] rounded-md overflow-hidden hover:ring-1 hover:ring-[#822C2C] transition-all">
+                  <div 
+                    key={game.id} 
+                    onClick={() => handleGameClick(game.id)}
+                    className="group bg-[#151515] rounded-md overflow-hidden hover:ring-1 hover:ring-[#822C2C] transition-all cursor-pointer"
+                  >
                     <div className="aspect-video bg-gray-800 relative">
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
                     <div className="p-4 flex justify-between items-center">
                       <div>
                         <h4 className="font-bold text-sm">{game.name}</h4>
-                        <p className="text-[10px] text-gray-500 uppercase">{game.tags.join(', ')}</p>
+                        <p className="text-[10px] text-gray-500 uppercase">{game.tags?.join(', ') || 'General'}</p>
                       </div>
-                      <span className="text-xs font-mono text-[#822C2C]">${game.price.toFixed(2)}</span>
+                      {/* FIXED HERE: Added ?. and || 0 */}
+                      <span className="text-xs font-mono text-[#822C2C]">${(game.price || 0).toFixed(2)}</span>
                     </div>
-                    <span className="text-xs font-mono text-[#822C2C]">Play: 10 tokens</span>
+                    <div className="px-4 pb-4">
+                        <span className="text-[10px] font-mono text-gray-400 uppercase tracking-widest">Play: 10 tokens</span>
+                    </div>
                   </div>
                 ))
               )}
@@ -195,27 +191,26 @@ const GamesDashboard = () => {
                 <div className="bg-[#0a0a0a] p-4 rounded-lg border-l-4 border-[#822C2C]">
                   {recentPost ? (
                     <>
-                      <p className="text-sm italic">{recentPost.title ? `"${recentPost.title}"` : 'No title'}</p>
-                      <span className="text-[10px] text-gray-600">{recentPost.description ? recentPost.description : ''}</span>
+                      <p className="text-sm italic">{recentPost.title ? `"${recentPost.title}"` : 'Untitled Post'}</p>
+                      <span className="text-[10px] text-gray-600 line-clamp-2">{recentPost.description || ''}</span>
                     </>
                   ) : (
-                    <span className="text-gray-500">Loading recent post...</span>
+                    <span className="text-gray-500">No recent discussions found.</span>
                   )}
                 </div>
               </div>
               <div className="space-y-4">
                 <p className="text-xs font-bold text-gray-500 uppercase">Top Community Art</p>
                 <div className="h-32 bg-[#0a0a0a] rounded-lg flex items-center justify-center border border-dashed border-white/10 overflow-hidden">
-                  {recentImagePost && recentImagePost.attachments && recentImagePost.attachments[0] ? (
-                    <img src={recentImagePost.attachments[0]} alt={recentImagePost.title || 'Community Art'} className="max-h-32 w-auto object-contain" />
+                  {recentImagePost?.attachments?.[0] ? (
+                    <img src={recentImagePost.attachments[0]} alt="Community Art" className="max-h-32 w-auto object-contain" />
                   ) : (
-                    <span className="text-gray-700 font-black text-4xl">P3_ART</span>
+                    <span className="text-gray-700 font-black text-4xl">NO_ART</span>
                   )}
                 </div>
               </div>
             </div>
           </section>
-
         </div>
       </div>
     </div>
