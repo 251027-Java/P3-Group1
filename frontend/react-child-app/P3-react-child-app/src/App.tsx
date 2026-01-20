@@ -16,6 +16,7 @@ import UploadGame from './components/UploadGame';
 import UploadWebGame from './components/UploadGame';
 import { CartProvider } from './contexts/CartContext';
 import TokenStore from './components/TokenStore';
+import LowTokenPrompt from './components/LowTokenPrompt';
 
 function App() {
   
@@ -29,6 +30,7 @@ function App() {
 
     <div className='pt-[72px]'>
       <Cart />
+      <LowTokenPrompt />
       <Routes>
         <Route path="/*" element={<IframeWrapper baseUrl="http://localhost:4200" />} />
 

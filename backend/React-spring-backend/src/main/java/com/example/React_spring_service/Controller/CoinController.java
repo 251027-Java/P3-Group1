@@ -45,6 +45,16 @@ public class CoinController {
         var userOpt = userRepository.findById(userId);
         if (userOpt.isEmpty()) return ResponseEntity.notFound().build();
         User user = userOpt.get();
+        if (req.amount == null) return ResponseEntity.badRequest().body(Map.of("error", "amount_required"));
+
+        // Calculate current balance
+        List<CoinTransaction> txsBefore = transactionRepository.findByUserIdOrderByTimestampDesc(userId);
+        long currentBalance = txsBefore.stream().mapToLong(t -> t.getAmount()).sum();
+
+        // If this is a spend (negative amount), ensure sufficient funds
+        if (req.amount < 0 && (currentBalance + req.amount) < 0) {
+            return ResponseEntity.badRequest().body(Map.of("error", "insufficient_funds", "balance", currentBalance));
+        }
 
         CoinTransaction tx = CoinTransaction.builder()
                 .amount(req.amount)
