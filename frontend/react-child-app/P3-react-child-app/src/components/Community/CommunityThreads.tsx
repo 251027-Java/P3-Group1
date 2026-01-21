@@ -51,7 +51,7 @@ const CommunityThreads = () => {
     if (!postId) return;
     
     try {
-      const data = await http(`/community/posts/${postId}/comments`);
+      const data = await http(`/community/posts/${postId}/comments`) as Comment[];
       setComments(data);
     } catch (err) {
       console.error('Failed to load comments:', err);
