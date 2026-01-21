@@ -1,5 +1,5 @@
 # --- STAGE 1: Build the Application ---
-FROM maven:3.9.6-eclipse-temurin-25 AS build
+FROM maven:3.9.6-eclipse-temurin-21 AS build
 WORKDIR /app
 
 # Copy only the pom.xml first to cache dependencies (saves time on rebuilds)
@@ -11,7 +11,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # --- STAGE 2: Run the Application ---
-FROM eclipse-temurin:25-jre-alpine
+FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
 # Install curl for healthcheck
