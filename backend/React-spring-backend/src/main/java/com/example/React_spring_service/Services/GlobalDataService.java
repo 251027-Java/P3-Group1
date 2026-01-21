@@ -11,7 +11,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true) // Optimizes performance for read operations
+@Transactional(readOnly = true)
 public class GlobalDataService {
 
     private final UserRepository userRepository;
@@ -23,12 +23,10 @@ public class GlobalDataService {
     private final ReviewRepository reviewRepository;
     private final WishlistRepository wishlistRepository;
 
-    // --- USER DATA ---
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
-    // --- GAME & STORE DATA ---
     public List<Game> getAllGames() {
         return gameRepository.findAll();
     }
@@ -41,9 +39,7 @@ public class GlobalDataService {
         return wishlistRepository.findAll();
     }
 
-    // --- SOCIAL & FEEDBACK DATA ---
     public List<CommunityPost> getAllCommunityPosts() {
-        // We use the repository to ensure they come back newest first
         return postRepository.findAll();
     }
 
@@ -51,15 +47,10 @@ public class GlobalDataService {
         return reviewRepository.findAll();
     }
 
-    /**
-     * Note: We usually don't "Get All" comments because it would be
-     * a massive unstructured list. We usually fetch by Post ID.
-     */
     public List<Comment> getCommentsByPost(Long postId) {
         return commentRepository.findByPostIdAndParentCommentIsNullOrderByDateCreatedAsc(postId);
     }
 
-    // --- ECONOMY DATA ---
     public List<CoinTransaction> getAllTransactions() {
         return transactionRepository.findAll();
     }

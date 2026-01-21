@@ -16,6 +16,10 @@ module.exports = (webpackConfigEnv, argv) => {
     return merge(defaultConfig, {
         // Explicit entry point for TypeScript file
         entry: path.resolve(__dirname, "src/gamehub-root-config.ts"),
+        // Disable minification to avoid Terser/SystemJS conflicts
+        optimization: {
+            minimize: false,
+        },
         // Add TypeScript support
         resolve: {
             extensions: [".ts", ".tsx", ".js", ".jsx"],

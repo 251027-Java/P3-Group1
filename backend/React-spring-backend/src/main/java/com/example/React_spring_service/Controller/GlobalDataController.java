@@ -13,19 +13,9 @@ import java.util.List;
 @RequestMapping("/api")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
-public class GlobalController {
+public class GlobalDataController {
 
     private final GlobalDataService globalDataService;
-
-    @GetMapping("/users")
-    public ResponseEntity<List<User>> getAllUsers() {
-        System.out.println("Did we reach this part of the controller?");
-        System.out.println("Did we reach this part of the controller?");
-        System.out.println("Did we reach this part of the controller?");
-        System.out.println("Did we reach this part of the controller?");
-        System.out.println("Did we reach this part of the controller?");
-        return ResponseEntity.ok(globalDataService.getAllUsers());
-    }
 
     @GetMapping("/games")
     public ResponseEntity<List<Game>> getAllGames() {
@@ -37,13 +27,13 @@ public class GlobalController {
         return ResponseEntity.ok(globalDataService.getAllRewards());
     }
 
-    @GetMapping("/community/posts")
+    @GetMapping("/posts")
     public ResponseEntity<List<CommunityPost>> getAllPosts() {
         return ResponseEntity.ok(globalDataService.getAllCommunityPosts());
     }
 
-    @GetMapping("/community/posts/{postId}/comments")
-    public ResponseEntity<List<Comment>> getPostComments(@PathVariable Long postId) {
+    @GetMapping("/posts/{postId}/comments")
+    public ResponseEntity<List<Comment>> getCommentsByPost(@PathVariable Long postId) {
         return ResponseEntity.ok(globalDataService.getCommentsByPost(postId));
     }
 
@@ -57,7 +47,7 @@ public class GlobalController {
         return ResponseEntity.ok(globalDataService.getAllTransactions());
     }
 
-    @GetMapping("/wishlist")
+    @GetMapping("/wishlists")
     public ResponseEntity<List<Wishlist>> getAllWishlists() {
         return ResponseEntity.ok(globalDataService.getAllWishlistEntries());
     }
