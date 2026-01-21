@@ -42,7 +42,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "user"]
+      test: [ "CMD", "pg_isready", "-U", "user" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -54,7 +54,7 @@ services:
     ports:
       - "8761:8761"
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8761/ || exit 1"]
+      test: [ "CMD-SHELL", "curl -f http://localhost:8761/ || exit 1" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -71,7 +71,7 @@ services:
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health" ]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -99,11 +99,11 @@ services:
       - react_service_logs:/var/log/react-service
       - ./backend/React-spring-backend:/app
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1"]
-      interval: 15s
-      timeout: 10s
-      retries: 5
-      start_period: 40s
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1" ]
+      interval: 15s # Give it 15s between checks
+      timeout: 10s # Wait up to 10s for a response
+      retries: 5 # Allow 5 failures before marking "Unhealthy"
+      start_period: 40s # CRITICAL: Gives Spring Boot time to boot up before checking
 
   angular-backend:
     build:

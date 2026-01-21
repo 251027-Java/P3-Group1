@@ -50,3 +50,29 @@ export interface CreateReviewRequest {
   ratingNumber: number;
   content: string;
 }
+
+// User API DTOs
+export interface userDTO {
+  id: number;
+  email: string;
+  displayName: string;
+  displayImage?: string;
+  level?: 'USER' | 'DEVELOPER' | 'ADMIN';
+  canSell?: boolean;
+  tokens?: number;
+}
+
+export interface RegisterDTO {
+  email: string;
+  userPassword: string;
+  displayName: string;
+  displayImage?: string;
+}
+
+export interface commentsPostDTO {
+  id?: number;
+  userId: number;
+  content: string;
+  threadId?: number;
+  createdAt?: string;
+}

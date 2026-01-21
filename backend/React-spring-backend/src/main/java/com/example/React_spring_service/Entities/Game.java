@@ -23,6 +23,9 @@ public class Game {
 
     private String name;
 
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
     @Column(name = "date_released")
     private LocalDate dateReleased;
 
@@ -45,20 +48,17 @@ public class Game {
 
     // --- JSONB DATA ---
 
-    @Lob
     @Column(columnDefinition = "TEXT")
     @Convert(converter = JsonConverter.class)
     @Builder.Default
     private List<String> tags = new ArrayList<>();
 
-    @Lob
     @Column(columnDefinition = "TEXT")
     @Convert(converter = JsonConverter.class)
     @Builder.Default
     private List<Map<String, String>> developerLogs = new ArrayList<>();
     // Structure: {"title": "Update v1.1", "description": "Fixed bugs..."}
 
-    @Lob
     @Column(columnDefinition = "TEXT")
     @Convert(converter = JsonConverter.class)
     @Builder.Default
