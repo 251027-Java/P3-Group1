@@ -36,5 +36,6 @@ public class User {
     private String avatarUrl;
 
     // Auth specific fields
+    // branch testing
     private boolean enabled = true;
 }
