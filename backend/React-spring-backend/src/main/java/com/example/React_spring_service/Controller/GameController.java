@@ -26,6 +26,16 @@ public class GameController {
     private final UserRepository userRepository;
 
     /**
+     * GET /api/games
+     * Returns a list of all games
+     */
+    @GetMapping
+    public ResponseEntity<List<Game>> getAllGames() {
+        List<Game> games = gameRepository.findAll();
+        return ResponseEntity.ok(games);
+    }
+
+    /**
      * GET /api/games/{id}
      * Returns a single game by ID or 404 if not found
      */
@@ -38,7 +48,8 @@ public class GameController {
 
     /**
      * GET /api/games/{id}/reviews
-     * Returns all reviews for a specific game, ordered by creation date (newest first)
+     * Returns all reviews for a specific game, ordered by creation date (newest
+     * first)
      */
     @GetMapping("/{id}/reviews")
     public ResponseEntity<List<Review>> getReviewsByGameId(@PathVariable Long id) {
@@ -59,14 +70,15 @@ public class GameController {
      * Request body: { "ratingNumber": 1-5, "content": "review text" }
      * Header: X-User-Id (required to simulate logged-in user)
      * 
-     * Returns 201 on success, 400 for validation errors, 401 if no user ID, 409 if review already exists
+     * Returns 201 on success, 400 for validation errors, 401 if no user ID, 409 if
+     * review already exists
      */
     @PostMapping("/{id}/reviews")
     public ResponseEntity<?> createReview(
             @PathVariable Long id,
             @RequestBody ReviewRequest request,
             @RequestHeader(value = "X-User-Id", required = false) Long userId) {
-        
+
         // Validate user ID header (simulates authentication)
         if (userId == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)

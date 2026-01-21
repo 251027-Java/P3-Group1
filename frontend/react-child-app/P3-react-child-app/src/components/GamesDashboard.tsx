@@ -16,7 +16,7 @@ const GamesDashboard = () => {
 
   React.useEffect(() => {
     // 1. Fetch Games with Error Handling
-    fetch('http://localhost:8080/api/games')
+    fetch('http://localhost:8082/api/games')
       .then(res => {
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         return res.json();
@@ -27,7 +27,7 @@ const GamesDashboard = () => {
           setGames(data);
         } else {
           console.error("API did not return an array of games:", data);
-          setGames([]); 
+          setGames([]);
         }
       })
       .catch(err => {
@@ -50,15 +50,15 @@ const GamesDashboard = () => {
             }
             return (b.id || 0) - (a.id || 0);
           });
-          
+
           setRecentPost(sorted[0]);
 
-          const imagePosts = sorted.filter(post => 
-            post.type === 'IMAGE' && 
-            Array.isArray(post.attachments) && 
+          const imagePosts = sorted.filter(post =>
+            post.type === 'IMAGE' &&
+            Array.isArray(post.attachments) &&
             post.attachments.length > 0
           );
-          
+
           setRecentImagePost(imagePosts.length > 0 ? imagePosts[0] : null);
         }
       })
@@ -70,7 +70,17 @@ const GamesDashboard = () => {
   };
 
   const handleGameClick = (id: number | string) => {
-    navigate(`/games/${id}`);
+    // Find the game name to check for specific routing
+    const game = games.find(g => g.id === id);
+    if (game?.name === 'Bubble Trouble') {
+      navigate('/games/bubble-trouble');
+    } else if (game?.name === 'Flappy Bird') {
+      navigate('/games/flappy-bird');
+    } else if (game?.name === 'The Impossible - Mini Clone') { // Matching GameIframe name
+      navigate('/play-impossible');
+    } else {
+      navigate(`/games/${id}`);
+    }
   };
 
   // Efficient fuzzy search function
@@ -124,19 +134,19 @@ const GamesDashboard = () => {
             </>
           )}
           <div className="flex space-x-4">
-            <button 
+            <button
               onClick={() => featuredGame && handleGameClick(featuredGame.id)}
               className="px-8 py-3 bg-[#822C2C] hover:bg-[#a13737] font-bold rounded-sm transition-all shadow-lg shadow-red-900/40">
               VIEW GAME
             </button>
             <button className="px-8 py-3 bg-white/10 hover:bg-white/20 font-bold rounded-sm transition-all border border-white/10"
-            onClick={handleWishClick}>WISHLIST</button>
+              onClick={handleWishClick}>WISHLIST</button>
           </div>
         </div>
       </section>
 
       <div className="px-12 py-10 grid grid-cols-12 gap-8">
-        
+
         {/* 2. Left Sidebar */}
         <aside className="col-span-12 lg:col-span-3 space-y-8">
           <div>
@@ -153,9 +163,8 @@ const GamesDashboard = () => {
                 <button
                   key={tag}
                   onClick={() => setActiveTag(tag)}
-                  className={`px-3 py-1 text-[10px] font-bold uppercase border rounded-full transition-all ${
-                    activeTag === tag ? 'bg-[#822C2C] border-[#822C2C]' : 'border-white/10 hover:border-white/30 text-gray-500'
-                  }`}
+                  className={`px-3 py-1 text-[10px] font-bold uppercase border rounded-full transition-all ${activeTag === tag ? 'bg-[#822C2C] border-[#822C2C]' : 'border-white/10 hover:border-white/30 text-gray-500'
+                    }`}
                 >
                   {tag}
                 </button>
@@ -173,8 +182,8 @@ const GamesDashboard = () => {
                 <div className="col-span-3 text-center text-gray-500 py-12">No games found.</div>
               ) : (
                 gamesToShow.map(game => (
-                  <div 
-                    key={game.id} 
+                  <div
+                    key={game.id}
                     onClick={() => handleGameClick(game.id)}
                     className="group bg-[#151515] rounded-md overflow-hidden hover:ring-1 hover:ring-[#822C2C] transition-all cursor-pointer"
                   >
@@ -190,7 +199,7 @@ const GamesDashboard = () => {
                       <span className="text-xs font-mono text-[#822C2C]">${(game.price || 0).toFixed(2)}</span>
                     </div>
                     <div className="px-4 pb-4">
-                        <span className="text-[10px] font-mono text-gray-400 uppercase tracking-widest">Play: 10 tokens</span>
+                      <span className="text-[10px] font-mono text-gray-400 uppercase tracking-widest">Play: 10 tokens</span>
                     </div>
                   </div>
                 ))
