@@ -19,7 +19,7 @@ pipeline {
             steps {
                 checkout([$class: 'GitSCM',
                     branches: [[name: "*/${params.BRANCH}"]],
-                    userRemoteConfigs: [[url: 'your-repo-url']]
+                    userRemoteConfigs: [[url: 'https://github.com/251027-Java/P3-Group1.git']]
                 ])
             }
         }
