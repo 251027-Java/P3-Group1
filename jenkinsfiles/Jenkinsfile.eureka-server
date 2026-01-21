@@ -13,9 +13,8 @@ pipeline {
     environment {
         SERVICE_NAME = 'eureka-server'
         SERVICE_PATH = 'backend/eureka-server/eureka-server'
-        DOCKER_IMAGE = "local/${SERVICE_NAME}"
-        SONAR_PROJECT_KEY = "${SERVICE_NAME}"
-        // Matches service name in root docker-compose.yml
+        DOCKER_REGISTRY = 'your-dockerhub-username' // Change this to your Docker Hub username or registry
+        DOCKER_IMAGE = "${DOCKER_REGISTRY}/${SERVICE_NAME}"
         COMPOSE_SERVICE_NAME = 'eureka-server'
     }
 
@@ -29,17 +28,26 @@ pipeline {
             }
         }
 
-        stage('Build & Test') {
+        stage('Build') {
             steps {
                 dir("${SERVICE_PATH}") {
                     script {
-                        echo "Building and Testing ${SERVICE_NAME}..."
-                        // Ensure Maven generates the XML report the new plugin needs
-                        sh 'mvn clean package' 
+                        echo "Building ${SERVICE_NAME}..."
+                        sh 'mvn clean compile'
+                    }
+                }
+            }
+        }
+
+        stage('Test') {
+            steps {
+                dir("${SERVICE_PATH}") {
+                    script {
+                        echo "Running tests for ${SERVICE_NAME}..."
+                        sh 'mvn test'
                         
                         junit '**/target/surefire-reports/*.xml'
                         
-                        // Modern way to record coverage in Jenkins
                         recordCoverage(
                             tools: [[parser: 'JACOCO', pattern: '**/target/site/jacoco/jacoco.xml']],
                             id: 'jacoco',
@@ -53,32 +61,69 @@ pipeline {
         stage('Static Analysis') {
             steps {
                 dir("${SERVICE_PATH}") {
-                    // 'SonarQube' must match the name in Manage Jenkins > System
-                    withSonarQubeEnv('SonarQube') {
-                        // Using host.docker.internal since Jenkins and SonarQube are likely in different networks
-                        // Explicitly passing the token injected by withSonarQubeEnv (escaped for shell)
-                        sh "mvn sonar:sonar -Dsonar.projectKey=${SONAR_PROJECT_KEY} -Dsonar.host.url=http://host.docker.internal:9000 -Dsonar.login=\$SONAR_AUTH_TOKEN"
+                    script {
+                        echo "Running static analysis with Checkstyle..."
+                        sh 'mvn checkstyle:checkstyle || true'
+                        
+                        recordIssues(
+                            enabledForFailure: true,
+                            tools: [checkStyle(pattern: '**/target/checkstyle-result.xml')],
+                            qualityGates: [[threshold: 1, type: 'TOTAL', unstable: false]]
+                        )
                     }
                 }
             }
         }
 
-        stage('Quality Gate') {
+        stage('Docker Build') {
             steps {
-                timeout(time: 5, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
+                dir("${SERVICE_PATH}") {
+                    script {
+                        echo "Building Docker image for ${SERVICE_NAME}..."
+                        // Package the application first
+                        sh 'mvn package -DskipTests'
+                        
+                        // Build Docker image with tags
+                        sh """
+                            docker build -t ${DOCKER_IMAGE}:${BUILD_NUMBER} \
+                                         -t ${DOCKER_IMAGE}:latest .
+                        """
+                    }
                 }
             }
         }
 
-        stage('Local Deploy') {
-            when { branch 'main' }
+        stage('Docker Push') {
+            when {
+                branch 'main'
+            }
+            steps {
+                script {
+                    echo "Pushing Docker image for ${SERVICE_NAME}..."
+                    withCredentials([usernamePassword(
+                        credentialsId: 'docker-registry-creds',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )]) {
+                        sh """
+                            echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin
+                            docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}
+                            docker push ${DOCKER_IMAGE}:latest
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Deploy') {
+            when {
+                branch 'main'
+            }
             steps {
                 dir("${SERVICE_PATH}") {
                     script {
                         echo "Deploying via Docker Compose (Root)..."
-                        // Eureka path to root: ../../../
-                        sh "docker-compose -f ../../docker-compose.yml up --build -d ${COMPOSE_SERVICE_NAME}"
+                        sh "docker-compose -f ../../../docker-compose.yml up --build -d ${COMPOSE_SERVICE_NAME}"
                     }
                 }
             }

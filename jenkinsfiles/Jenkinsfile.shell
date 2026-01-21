@@ -8,8 +8,8 @@ pipeline {
     environment {
         SERVICE_NAME = 'shell'
         SERVICE_PATH = 'frontend/shell'
-        DOCKER_IMAGE = "local/${SERVICE_NAME}"
-        // Matches service name we will add to root docker-compose.yml
+        DOCKER_REGISTRY = 'your-dockerhub-username'
+        DOCKER_IMAGE = "${DOCKER_REGISTRY}/${SERVICE_NAME}"
         COMPOSE_SERVICE_NAME = 'shell'
     }
 
@@ -18,20 +18,57 @@ pipeline {
             steps {
                 checkout([$class: 'GitSCM',
                     branches: [[name: "*/${params.BRANCH}"]],
-                    userRemoteConfigs: [[url: 'your-repo-url']]
+                    userRemoteConfigs: [[url: 'https://github.com/251027-Java/P3-Group1.git']]
                 ])
             }
         }
 
-        // Skipping Build/Test Stages for Shell as requested/implied by structure (static site)
+        // No Build/Test/Static Analysis for static HTML site
         
-        stage('Local Deploy') {
-            when { branch 'main' }
+        stage('Docker Build') {
+            steps {
+                dir("${SERVICE_PATH}") {
+                    script {
+                        echo "Building Docker image for ${SERVICE_NAME}..."
+                        sh """
+                            docker build -t ${DOCKER_IMAGE}:${BUILD_NUMBER} \
+                                         -t ${DOCKER_IMAGE}:latest .
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Docker Push') {
+            when {
+                branch 'main'
+            }
+            steps {
+                script {
+                    echo "Pushing Docker image for ${SERVICE_NAME}..."
+                    withCredentials([usernamePassword(
+                        credentialsId: 'docker-registry-creds',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )]) {
+                        sh """
+                            echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin
+                            docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}
+                            docker push ${DOCKER_IMAGE}:latest
+                        """
+                    }
+                }
+            }
+        }
+        
+        stage('Deploy') {
+            when {
+                branch 'main'
+            }
             steps {
                 dir("${SERVICE_PATH}") {
                     script {
                         echo "Deploying via Docker Compose (Root)..."
-                        // Shell path to root: ../../
                         sh "docker-compose -f ../../docker-compose.yml up --build -d ${COMPOSE_SERVICE_NAME}"
                     }
                 }

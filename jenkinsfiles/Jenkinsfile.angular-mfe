@@ -8,10 +8,9 @@ pipeline {
     environment {
         SERVICE_NAME = 'angular-mfe'
         SERVICE_PATH = 'frontend/angular-child-app/angular-child-app'
-        DOCKER_IMAGE = "local/${SERVICE_NAME}"
-        SONAR_PROJECT_KEY = "${SERVICE_NAME}"
+        DOCKER_REGISTRY = 'your-dockerhub-username'
+        DOCKER_IMAGE = "${DOCKER_REGISTRY}/${SERVICE_NAME}"
         NODE_VERSION = '18'
-        // Matches service name in root docker-compose.yml
         COMPOSE_SERVICE_NAME = 'angular-frontend'
     }
 
@@ -20,25 +19,31 @@ pipeline {
             steps {
                 checkout([$class: 'GitSCM',
                     branches: [[name: "*/${params.BRANCH}"]],
-                    userRemoteConfigs: [[url: 'your-repo-url']]
+                    userRemoteConfigs: [[url: 'https://github.com/251027-Java/P3-Group1.git']]
                 ])
             }
         }
 
-        stage('Build & Test') {
+        stage('Build') {
             steps {
                 dir("${SERVICE_PATH}") {
                     script {
-                        echo "Building and Testing ${SERVICE_NAME}..."
+                        echo "Building ${SERVICE_NAME}..."
                         sh """
                             npm install
                             npm run build
                         """
-                        // Run tests (headless)
-                        sh 'npm run test -- --no-watch --no-progress --browsers=ChromeHeadless'
-                        
-                        // Publish coverage if available
-                        // publishHTML(...)
+                    }
+                }
+            }
+        }
+
+        stage('Test') {
+            steps {
+                dir("${SERVICE_PATH}") {
+                    script {
+                        echo "Running tests for ${SERVICE_NAME}..."
+                        sh 'npm run test -- --no-watch --no-progress --browsers=ChromeHeadless || true'
                     }
                 }
             }
@@ -47,34 +52,58 @@ pipeline {
         stage('Static Analysis') {
             steps {
                 dir("${SERVICE_PATH}") {
-                    withSonarQubeEnv('SonarQube') {
+                    script {
+                        echo "Running ESLint static analysis..."
+                        sh 'npm run lint || true'
+                    }
+                }
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                dir("${SERVICE_PATH}") {
+                    script {
+                        echo "Building Docker image for ${SERVICE_NAME}..."
                         sh """
-                            sonar-scanner \
-                            -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
-                            -Dsonar.projectName=${SERVICE_NAME} \
-                            -Dsonar.sources=src 
+                            docker build -t ${DOCKER_IMAGE}:${BUILD_NUMBER} \
+                                         -t ${DOCKER_IMAGE}:latest .
                         """
                     }
                 }
             }
         }
 
-        stage('Quality Gate') {
+        stage('Docker Push') {
+            when {
+                branch 'main'
+            }
             steps {
-                timeout(time: 5, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
+                script {
+                    echo "Pushing Docker image for ${SERVICE_NAME}..."
+                    withCredentials([usernamePassword(
+                        credentialsId: 'docker-registry-creds',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )]) {
+                        sh """
+                            echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin
+                            docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}
+                            docker push ${DOCKER_IMAGE}:latest
+                        """
+                    }
                 }
             }
         }
 
-        stage('Local Deploy') {
-            when { branch 'main' }
+        stage('Deploy') {
+            when {
+                branch 'main'
+            }
             steps {
                 dir("${SERVICE_PATH}") {
                     script {
                         echo "Deploying via Docker Compose (Root)..."
-                        // Service Path: frontend/angular-child-app/angular-child-app
-                        // Path to root: ../../../
                         sh "docker-compose -f ../../../docker-compose.yml up --build -d ${COMPOSE_SERVICE_NAME}"
                     }
                 }

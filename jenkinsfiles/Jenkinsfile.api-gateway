@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    tools {
+        jdk 'JDK21' 
+        maven 'maven'
+    }
+
     parameters {
         string(name: 'BRANCH', defaultValue: 'main', description: 'Branch to build')
     }
@@ -8,10 +13,8 @@ pipeline {
     environment {
         SERVICE_NAME = 'api-gateway'
         SERVICE_PATH = 'backend/api-gateway/gateway'
-        // Use a local tag name since you are deploying on the same machine
-        DOCKER_IMAGE = "local/${SERVICE_NAME}"
-        SONAR_PROJECT_KEY = "${SERVICE_NAME}"
-        // Matches service name in root docker-compose.yml
+        DOCKER_REGISTRY = 'your-dockerhub-username'
+        DOCKER_IMAGE = "${DOCKER_REGISTRY}/${SERVICE_NAME}"
         COMPOSE_SERVICE_NAME = 'api-gateway'
     }
 
@@ -20,24 +23,35 @@ pipeline {
             steps {
                 checkout([$class: 'GitSCM',
                     branches: [[name: "*/${params.BRANCH}"]],
-                    userRemoteConfigs: [[url: 'your-repo-url']]
+                    userRemoteConfigs: [[url: 'https://github.com/251027-Java/P3-Group1.git']]
                 ])
             }
         }
 
-        stage('Build & Test') {
+        stage('Build') {
             steps {
                 dir("${SERVICE_PATH}") {
                     script {
-                        echo "Building and Testing ${SERVICE_NAME}..."
-                        // 'package' creates the .jar file needed for the Docker image
-                        sh 'mvn clean package' 
+                        echo "Building ${SERVICE_NAME}..."
+                        sh 'mvn clean compile'
+                    }
+                }
+            }
+        }
+
+        stage('Test') {
+            steps {
+                dir("${SERVICE_PATH}") {
+                    script {
+                        echo "Running tests for ${SERVICE_NAME}..."
+                        sh 'mvn test'
                         
                         junit '**/target/surefire-reports/*.xml'
-                        jacoco(
-                            execPattern: '**/target/jacoco.exec',
-                            classPattern: '**/target/classes',
-                            sourcePattern: '**/src/main/java'
+                        
+                        recordCoverage(
+                            tools: [[parser: 'JACOCO', pattern: '**/target/site/jacoco/jacoco.xml']],
+                            id: 'jacoco',
+                            name: 'JaCoCo Coverage'
                         )
                     }
                 }
@@ -47,29 +61,66 @@ pipeline {
         stage('Static Analysis') {
             steps {
                 dir("${SERVICE_PATH}") {
-                    withSonarQubeEnv('SonarQube') {
-                        sh "mvn sonar:sonar -Dsonar.projectKey=${SONAR_PROJECT_KEY}"
+                    script {
+                        echo "Running static analysis with Checkstyle..."
+                        sh 'mvn checkstyle:checkstyle || true'
+                        
+                        recordIssues(
+                            enabledForFailure: true,
+                            tools: [checkStyle(pattern: '**/target/checkstyle-result.xml')],
+                            qualityGates: [[threshold: 1, type: 'TOTAL', unstable: false]]
+                        )
                     }
                 }
             }
         }
 
-        stage('Quality Gate') {
+        stage('Docker Build') {
             steps {
-                timeout(time: 5, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
+                dir("${SERVICE_PATH}") {
+                    script {
+                        echo "Building Docker image for ${SERVICE_NAME}..."
+                        sh 'mvn package -DskipTests'
+                        
+                        sh """
+                            docker build -t ${DOCKER_IMAGE}:${BUILD_NUMBER} \
+                                         -t ${DOCKER_IMAGE}:latest .
+                        """
+                    }
                 }
             }
         }
 
-        stage('Local Deploy') {
-            when { branch 'main' }
+        stage('Docker Push') {
+            when {
+                branch 'main'
+            }
+            steps {
+                script {
+                    echo "Pushing Docker image for ${SERVICE_NAME}..."
+                    withCredentials([usernamePassword(
+                        credentialsId: 'docker-registry-creds',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )]) {
+                        sh """
+                            echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin
+                            docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}
+                            docker push ${DOCKER_IMAGE}:latest
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Deploy') {
+            when {
+                branch 'main'
+            }
             steps {
                 dir("${SERVICE_PATH}") {
                     script {
                         echo "Deploying via Docker Compose (Root)..."
-                        // Uses root docker-compose.yml
-                        // Path from backend/api-gateway/gateway to root is ../../../
                         sh "docker-compose -f ../../../docker-compose.yml up --build -d ${COMPOSE_SERVICE_NAME}"
                     }
                 }
@@ -79,7 +130,6 @@ pipeline {
 
     post {
         always {
-            // Clean workspace to save disk space
             cleanWs()
         }
         success {
