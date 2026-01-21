@@ -125,7 +125,7 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("Game not found with id: " + gameId));
 
         // Safe cast since we control the list creation
-        List<Number> gamesLibrary = (List<Number>) user.getGamesInLibrary();
+        List<Number> gamesLibrary = user.getGamesInLibrary();
         if (!gamesLibrary.stream().anyMatch(id -> id.longValue() == gameId)) {
             gamesLibrary.add(gameId);
         }
@@ -139,9 +139,9 @@ public class UserService {
     public User removeGameFromLibrary(Long userId, Long gameId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
-        
+
         // Safe cast since we control the list creation
-        List<Number> gamesLibrary = (List<Number>) user.getGamesInLibrary();
+        List<Number> gamesLibrary = user.getGamesInLibrary();
         gamesLibrary.removeIf(id -> id.longValue() == gameId);
         return userRepository.save(user);
     }
@@ -187,7 +187,7 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("Game not found with id: " + gameId));
 
         // Safe cast since we control the list creation
-        List<Number> wishlist = (List<Number>) user.getWishlist();
+        List<Long> wishlist = user.getWishlist();
         if (!wishlist.stream().anyMatch(id -> id.longValue() == gameId)) {
             wishlist.add(gameId);
         }
@@ -201,9 +201,9 @@ public class UserService {
     public User removeGameFromWishlist(Long userId, Long gameId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
-        
+
         // Safe cast since we control the list creation
-        List<Number> wishlist = (List<Number>) user.getWishlist();
+        List<Long> wishlist = user.getWishlist();
         wishlist.removeIf(id -> id.longValue() == gameId);
         return userRepository.save(user);
     }
