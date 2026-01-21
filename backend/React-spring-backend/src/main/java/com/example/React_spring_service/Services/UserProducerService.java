@@ -1,10 +1,7 @@
-package com.example.Angular_spring_service.Service;
+package com.example.React_spring_service.Services;
 
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
-
-import com.example.Angular_spring_service.Dtos.UserUpdateEvent;
-import com.example.Angular_spring_service.Entities.User;
 
 import lombok.RequiredArgsConstructor;
 
