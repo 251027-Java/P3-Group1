@@ -115,6 +115,7 @@ public class UserService {
     /**
      * Add game to user's library
      */
+    @SuppressWarnings("unchecked")
     public User addGameToLibrary(Long userId, Long gameId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
@@ -123,9 +124,10 @@ public class UserService {
         gameRepository.findById(gameId)
                 .orElseThrow(() -> new RuntimeException("Game not found with id: " + gameId));
 
-        if (!user.getGamesInLibrary().contains(gameId)) {
-
-            ((List) user.getGamesInLibrary()).add(gameId);
+        // Safe cast since we control the list creation
+        List<Number> gamesLibrary = (List<Number>) user.getGamesInLibrary();
+        if (!gamesLibrary.stream().anyMatch(id -> id.longValue() == gameId)) {
+            gamesLibrary.add(gameId);
         }
         return userRepository.save(user);
     }
@@ -133,11 +135,14 @@ public class UserService {
     /**
      * Remove game from user's library
      */
+    @SuppressWarnings("unchecked")
     public User removeGameFromLibrary(Long userId, Long gameId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
-
-        user.getGamesInLibrary().remove(gameId);
+        
+        // Safe cast since we control the list creation
+        List<Number> gamesLibrary = (List<Number>) user.getGamesInLibrary();
+        gamesLibrary.removeIf(id -> id.longValue() == gameId);
         return userRepository.save(user);
     }
 
@@ -150,10 +155,7 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
 
         return user.getGamesInLibrary().stream()
-                // 1. Explicitly cast the 'Number' capture to 'Long'
-                .map(gameId -> (Long) gameId)
-                // 2. Now the repository will accept the Long
-                .map(gameId -> gameRepository.findById(gameId).orElse(null))
+                .map(gameId -> gameRepository.findById(gameId.longValue()).orElse(null))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
@@ -167,12 +169,15 @@ public class UserService {
     public List<Long> getUserWishlist(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
-        return ((List) user.getWishlist());
+        return user.getWishlist().stream()
+                .map(Number::longValue)
+                .collect(Collectors.toList());
     }
 
     /**
      * Add game to wishlist
      */
+    @SuppressWarnings("unchecked")
     public User addGameToWishlist(Long userId, Long gameId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
@@ -181,8 +186,10 @@ public class UserService {
         gameRepository.findById(gameId)
                 .orElseThrow(() -> new RuntimeException("Game not found with id: " + gameId));
 
-        if (!user.getWishlist().contains(gameId)) {
-            ((List) user.getWishlist()).add(gameId);
+        // Safe cast since we control the list creation
+        List<Number> wishlist = (List<Number>) user.getWishlist();
+        if (!wishlist.stream().anyMatch(id -> id.longValue() == gameId)) {
+            wishlist.add(gameId);
         }
         return userRepository.save(user);
     }
@@ -190,11 +197,14 @@ public class UserService {
     /**
      * Remove game from wishlist
      */
+    @SuppressWarnings("unchecked")
     public User removeGameFromWishlist(Long userId, Long gameId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
-
-        user.getWishlist().remove(gameId);
+        
+        // Safe cast since we control the list creation
+        List<Number> wishlist = (List<Number>) user.getWishlist();
+        wishlist.removeIf(id -> id.longValue() == gameId);
         return userRepository.save(user);
     }
 
@@ -207,10 +217,7 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
 
         return user.getWishlist().stream()
-                // Map the '? extends Number' to 'Long' explicitly
-                .map(num -> (Long) num)
-                // Now you can safely pass it to the repository
-                .map(gameId -> gameRepository.findById(gameId).orElse(null))
+                .map(gameId -> gameRepository.findById(gameId.longValue()).orElse(null))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }

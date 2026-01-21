@@ -2,6 +2,7 @@ import './App.css'
 // App.tsx
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import IframeWrapper from './iframwrapper/IframeWrapper';
+import GameIframe from './iframwrapper/GameIframe';
 import Navbar from './components/Navbar';
 import Profile from './components/Profile';
 import GamesDashboard from './components/GamesDashboard';
@@ -32,6 +33,7 @@ function App() {
       <Cart />
       <LowTokenPrompt />
       <Routes>
+        <Route path="/play-impossible" element={<GameIframe/>} />
         <Route path="/*" element={<IframeWrapper baseUrl="http://localhost:4200" />} />
 
         <Route 
