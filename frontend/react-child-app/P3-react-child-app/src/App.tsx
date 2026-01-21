@@ -21,40 +21,68 @@ function App() {
   return (
     <Router>
       <CartProvider>
-        <Navbar onCartClick={() => { }} cartCount={0} />
+        <Navbar onCartClick={() => {}} cartCount={0} />
+      
 
-        <div className='pt-[72px]'>
-          <Cart />
-          <LowTokenPrompt />
+    <div className='pt-[72px]'>
+      <Cart />
+      <LowTokenPrompt />
+      <Routes>
+        <Route 
+          path="/profile" 
+          element={<Profile/>} 
+        />
 
-          <Routes>
-            {/* New Features */}
-            <Route path="/play-impossible" element={<GameIframe />} />
-            <Route path="/games/bubble-trouble" element={<GameIframeWrapper game="bubble-trouble" />} />
-            <Route path="/games/flappy-bird" element={<GameIframeWrapper game="flappy-bird" />} />
+        <Route 
+          path="/GamesDashboard" 
+          element={<GamesDashboard/>} 
+        />
 
-            {/* Core Pages */}
-            <Route path="/" element={<GamesDashboard />} />
-            <Route path="/GamesDashboard" element={<GamesDashboard />} />
-            <Route path="/CommunityHub" element={<CommunityHub />} />
-            <Route path="/CommunityThreads" element={<CommunityThreads />} />
+        <Route 
+          path="/CommunityHub" 
+          element={<CommunityHub/>} 
+        />
 
-            {/* Profile & Game Details */}
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/games/:id" element={<GameProfile />} />
-            <Route path="/GameProfile" element={<GameProfile />} />
+        <Route 
+          path="/CommunityThreads" 
+          element={<CommunityThreads/>} 
+        />
 
-            {/* Store & Rewards */}
-            <Route path="/Wishlist" element={<Wishlist />} />
-            <Route path="/Rewards" element={<RewardsPage />} />
-            <Route path="/BuyTokens" element={<TokenStore />} />
-            <Route path="/UploadGame" element={<UploadWebGame />} />
+        <Route 
+          path="/games/:id" 
+          element={<GameProfile/>} 
+        />
 
-            {/* Default Catch-all (Angular Fallback) */}
-            <Route path="/*" element={<IframeWrapper baseUrl="http://localhost:4200" />} />
-          </Routes>
-        </div>
-      </CartProvider>
+        {/* Inventory removed: games are free & available on Dashboard */}
+
+        <Route 
+          path="/Wishlist" 
+          element={<Wishlist/>} 
+        />
+
+        <Route 
+          path="/Rewards" 
+          element={<RewardsPage/>} 
+        />
+
+        <Route
+          path="/BuyTokens"
+          element={<TokenStore />}
+        />
+
+        <Route 
+          path="/UploadGame" 
+          element={<UploadWebGame/>} 
+        />
+
+        <Route path="/play-impossible" element={<GameIframe/>} />
+
+        <Route path="/*" element={<IframeWrapper baseUrl="http://localhost:4200" />} />
+
+
+      </Routes>
+    </div>
+    </CartProvider>
     </Router>
   );
 }
