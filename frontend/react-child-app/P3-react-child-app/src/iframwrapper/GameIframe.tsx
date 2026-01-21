@@ -14,6 +14,17 @@ const GameIframe: React.FC = () => {
       if (msg && msg.type === 'game:requestPlay') {
         let user = userAPI.currentUser as any;
         console.debug('Current user at play request:', user);
+        // dump all localStorage keys for debugging
+        try {
+          const keys: Record<string,string> = {};
+          for (let i = 0; i < localStorage.length; i++) {
+            const k = localStorage.key(i) as string;
+            keys[k] = localStorage.getItem(k) as string;
+          }
+          console.debug('LocalStorage contents:', keys);
+        } catch (e) {
+          console.debug('Cannot read localStorage', e);
+        }
         // Attempt to hydrate from localStorage if missing
         if ((!user || !user.id) && typeof window !== 'undefined') {
           try {
