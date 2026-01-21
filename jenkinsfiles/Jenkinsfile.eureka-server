@@ -1,5 +1,5 @@
 pipeline {
-    agent none
+    agent any
     
     parameters {
         string(
@@ -7,6 +7,11 @@ pipeline {
             defaultValue: 'main',
             description: 'Branch to build'
         )
+    }
+    
+    tools {
+        jdk 'JDK21'
+        maven 'maven'
     }
     
     environment {
@@ -19,7 +24,6 @@ pipeline {
     
     stages {
         stage('Checkout') {
-            agent any
             steps {
                 checkout([
                     $class: 'GitSCM',
@@ -30,23 +34,14 @@ pipeline {
                     env.BRANCH_NAME = params.BRANCH
                     env.DOCKER_TAG = "${params.BRANCH}-${BUILD_NUMBER}"
                 }
-                stash includes: '**', name: 'source'
             }
         }
         
         stage('Build & Test') {
-            agent {
-                docker {
-                    image 'maven:3.9-eclipse-temurin-21'
-                    args '-v $HOME/.m2:/root/.m2'
-                }
-            }
             steps {
-                unstash 'source'
                 dir("${SERVICE_DIR}") {
                     sh 'mvn clean package'
                 }
-                stash includes: "${SERVICE_DIR}/target/**", name: 'build-artifacts'
             }
             post {
                 always {
@@ -61,14 +56,7 @@ pipeline {
         }
         
         stage('Static Analysis') {
-            agent {
-                docker {
-                    image 'maven:3.9-eclipse-temurin-21'
-                    args '-v $HOME/.m2:/root/.m2'
-                }
-            }
             steps {
-                unstash 'source'
                 dir("${SERVICE_DIR}") {
                     sh 'mvn checkstyle:checkstyle || true'
                 }
@@ -85,10 +73,7 @@ pipeline {
         }
         
         stage('Docker Build & Push') {
-            agent any
             steps {
-                unstash 'source'
-                unstash 'build-artifacts'
                 dir("${SERVICE_DIR}") {
                     withCredentials([usernamePassword(credentialsId: 'docker-registry-creds', 
                                                       usernameVariable: 'DOCKER_USER', 
@@ -109,9 +94,7 @@ pipeline {
             when {
                 branch 'main'
             }
-            agent any
             steps {
-                unstash 'source'
                 script {
                     echo "Deploying ${SERVICE_NAME} via Docker Compose..."
                     sh """
@@ -125,20 +108,20 @@ pipeline {
     
     post {
         always {
-            node(null) {
-                // Remove built service images (keep base images like maven)
+            script {
+                // Remove built service images
                 withCredentials([usernamePassword(credentialsId: 'docker-registry-creds', 
                                                   usernameVariable: 'DOCKER_USER', 
                                                   passwordVariable: 'DOCKER_PASS')]) {
                     sh "docker rmi \${DOCKER_USER}/${DOCKER_IMAGE}:${DOCKER_TAG} || true"
                     sh "docker rmi \${DOCKER_USER}/${DOCKER_IMAGE}:latest || true"
                 }
-                // Remove dangling images only
+                // Remove dangling images
                 sh 'docker image prune -f || true'
                 sh 'docker builder prune -f --keep-storage 2GB || true'
-                // Clean workspace completely
-                cleanWs(cleanWhenNotBuilt: true, deleteDirs: true, disableDeferredWipeout: true)
             }
+            // Clean workspace
+            cleanWs(cleanWhenNotBuilt: true, deleteDirs: true, disableDeferredWipeout: true)
         }
         success {
             echo "Successfully built and deployed ${DOCKER_IMAGE}:${DOCKER_TAG}"
