@@ -178,6 +178,19 @@ const GamesDashboard = () => {
           <section>
             <h2 className="text-2xl font-bold uppercase tracking-tight mb-6 border-b border-white/5 pb-2">Trending Projects</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {/* Demo tile for The Impossible game */}
+                <div onClick={() => navigate('/play-impossible')} className="group bg-[#0b0b0b] rounded-md overflow-hidden hover:ring-1 hover:ring-[#22c55e] transition-all cursor-pointer border border-white/5">
+                  <div className="aspect-square bg-gray-800 relative flex items-center justify-center">
+                    <div style={{ width: 40, height: 40, background: '#4ade80' }} />
+                  </div>
+                  <div className="p-4 flex justify-between items-center">
+                    <div>
+                      <h4 className="font-bold text-sm">The Impossible — Demo</h4>
+                      <p className="text-[10px] text-gray-500 uppercase">Click to Play</p>
+                    </div>
+                    <span className="text-xs font-mono text-[#22c55e]">Demo</span>
+                  </div>
+                </div>
               {gamesToShow.length === 0 ? (
                 <div className="col-span-3 text-center text-gray-500 py-12">No games found.</div>
               ) : (
