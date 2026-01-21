@@ -53,8 +53,9 @@ pipeline {
         stage('Static Analysis') {
             steps {
                 dir("${SERVICE_PATH}") {
+                    // 'SonarQube' must match the name in Manage Jenkins > System
                     withSonarQubeEnv('SonarQube') {
-                        sh "mvn sonar:sonar -Dsonar.projectKey=${SONAR_PROJECT_KEY}"
+                        sh "mvn sonar:sonar -Dsonar.projectKey=${SONAR_PROJECT_KEY} -Dsonar.host.url=${SONAR_HOST_URL}"
                     }
                 }
             }

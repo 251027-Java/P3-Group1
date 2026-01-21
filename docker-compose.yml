@@ -133,6 +133,18 @@ services:
       retries: 5 # Allow 5 failures before marking "Unhealthy"
       start_period: 40s # CRITICAL: Gives Spring Boot time to boot up before checking
 
+  sonarqube:
+    image: sonarqube:lts-community
+    container_name: sonarqube
+    ports:
+      - "9000:9000"
+    environment:
+      - SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_logs:/opt/sonarqube/logs
+
 #   react-frontend:
 #     build:
 #       context: ./frontend/react-child-app/P3-react-child-app
@@ -167,3 +179,7 @@ volumes:
   pgdata:
   react_service_logs:
   angular_service_logs:
+  # added
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_logs:
