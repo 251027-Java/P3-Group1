@@ -23,10 +23,10 @@
   resize();
   window.addEventListener('resize', resize);
 
-  // player
-  const player = { x: 80, y: 0, w: 28, h: 28, vy: 0, onGround: false };
-  const gravity = 1400; // px/s^2
-  const jumpVel = -520;
+  // player (bigger, tighter feel like The Impossible Game)
+  const player = { x: 72, y: 0, w: 40, h: 40, vy: 0, onGround: false };
+  const gravity = 2200; // px/s^2 (stronger gravity)
+  const jumpVel = -700; // snappy jump
 
   let groundY = height - 80;
   function recalcGround(){ groundY = height - 80; }
@@ -34,7 +34,8 @@
 
   let obstacles = [];
   let spawnTimer = 0;
-  let speed = 360; // px/s
+  const baseSpeed = 360; // base px/s
+  let speed = baseSpeed; // px/s
   // level system (seconds thresholds)
   const levelThresholds = [0, 10, 25, 45, 70, 100]; // pass level 1 at 10s, 2 at 25s, etc.
   let currentLevel = 0;
@@ -52,7 +53,7 @@
     player.vy = 0;
     obstacles = [];
     spawnTimer = 0.8;
-    speed = 360;
+    speed = baseSpeed * (currentLevel === 3 ? 2 : currentLevel === 2 ? 1.2 : 1);
     running = false;
     gameOver = false;
     score = 0;
@@ -69,11 +70,31 @@
     last = performance.now();
   }
 
+  // accept messages from parent to start or set level
+  window.addEventListener('message', (e)=>{
+    // ensure it's from parent window reference
+    if (e.source !== window.parent) return;
+    const msg = e.data || {};
+    if (msg && msg.type === 'game:start'){
+      start();
+    }
+    if (msg && msg.type === 'game:setLevel'){
+      const lvl = Number(msg.level) || 0;
+      currentLevel = lvl;
+      // apply speed multiplier immediately
+      speed = baseSpeed * (currentLevel === 3 ? 2 : currentLevel === 2 ? 1.2 : 1);
+      // show level indicator briefly
+      overlayMsg.style.display = 'block'; overlayMsg.textContent = `Level ${currentLevel} selected`;
+      setTimeout(()=>{ if(!running) overlayMsg.style.display = 'block'; }, 700);
+    }
+  });
+
   function spawnSpike(){
-    // smoother size and vertical jitter
+    // smoother size and vertical jitter — make spikes narrower and shorter for better play
     const t = performance.now() / 1000;
-    const size = 36 + Math.abs(Math.sin(t * 1.3 + noisePhase)) * 48; // 36..84
-    const spike = { x: width + 40, w: size, h: size, type: 'triangle' };
+    const w = 22 + Math.abs(Math.sin(t * 1.3 + noisePhase)) * 18; // 22..40
+    const h = Math.max(24, w * (1 + Math.abs(Math.cos(t * 0.7 + noisePhase)) * 0.25));
+    const spike = { x: width + 40, w: w, h: h, type: 'triangle' };
     spike.y = groundY - spike.h;
     obstacles.push(spike);
   }
@@ -95,10 +116,11 @@
     spawnTimer -= dt;
     if(spawnTimer <= 0){
       spawnSpike();
-      // base gap reduces with level/speed, but with smooth variation
-      const baseGap = Math.max(0.5, 0.9 - (currentLevel * 0.08));
-      const jitter = (Math.sin(elapsed * 1.4 + noisePhase) + 1) * 0.25; // 0..0.5
-      spawnTimer = baseGap + jitter + Math.random() * 0.18 * (1 - Math.min(1, currentLevel*0.12));
+      // base gap larger on level 1 for easy demo, then tighten with levels
+      const baseGap = Math.max(0.4, 1.2 - (currentLevel * 0.12));
+      const jitter = (Math.sin(elapsed * 1.1 + noisePhase) + 1) * 0.18; // 0..0.36
+      // reduce randomness slightly as levels increase
+      spawnTimer = baseGap + jitter + Math.random() * 0.12 * (1 - Math.min(1, currentLevel*0.15));
     }
 
     // move obstacles
@@ -115,7 +137,8 @@
     // score and difficulty ramp
     score += dt * 10;
     scoreEl.textContent = Math.floor(score).toString();
-    speed += dt * 8; // slight speed increase
+    // speed ramps but start a little slower for level 1 demo
+    speed += dt * (6 + currentLevel * 3);
 
     // level progression (check thresholds)
     for(let lvl = levelThresholds.length - 1; lvl >= 0; lvl--){
@@ -160,32 +183,12 @@
     requestAnimationFrame(loop);
   }
 
-  // input
-  // control flow: request play authorization from parent before starting a new run
-  let awaitingPlayApproval = false;
+  // input — demo mode: clicking starts the game immediately; no auth/token required
   function jump(){
-    if(gameOver){ reset(); // after reset, require approval again
-      // ask parent to allow play (deduct tokens)
-      if(window.parent && !awaitingPlayApproval){ window.parent.postMessage({ type: 'game:requestPlay' }, '*'); awaitingPlayApproval = true; overlayMsg.textContent = 'Requesting play...'; }
-      return; }
-    if(!running){
-      // ask parent to allow play (deduct tokens)
-      if(window.parent && !awaitingPlayApproval){ window.parent.postMessage({ type: 'game:requestPlay' }, '*'); awaitingPlayApproval = true; overlayMsg.textContent = 'Requesting play...'; }
-      return;
-    }
+    if(gameOver){ reset(); start(); return; }
+    if(!running){ start(); return; }
     if(player.onGround){ player.vy = jumpVel; player.onGround = false; }
   }
-
-  // listen for parent approval messages
-  window.addEventListener('message', (e)=>{
-    const msg = e.data || {};
-    if(msg && msg.type === 'game:playAllowed'){
-      awaitingPlayApproval = false; start();
-    }
-    if(msg && msg.type === 'game:insufficientTokens'){
-      awaitingPlayApproval = false; overlayMsg.style.display = 'block'; overlayMsg.textContent = 'Insufficient tokens — please buy more';
-    }
-  });
 
   window.addEventListener('keydown', (e)=>{ if(e.code==='Space'){ e.preventDefault(); jump(); } });
   window.addEventListener('mousedown', (e)=>{ jump(); });

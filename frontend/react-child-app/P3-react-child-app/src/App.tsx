@@ -33,9 +33,6 @@ function App() {
       <Cart />
       <LowTokenPrompt />
       <Routes>
-        <Route path="/play-impossible" element={<GameIframe/>} />
-        <Route path="/*" element={<IframeWrapper baseUrl="http://localhost:4200" />} />
-
         <Route 
           path="/profile" 
           element={<Profile/>} 
@@ -82,6 +79,10 @@ function App() {
           path="/UploadGame" 
           element={<UploadWebGame/>} 
         />
+
+        <Route path="/play-impossible" element={<GameIframe/>} />
+
+        <Route path="/*" element={<IframeWrapper baseUrl="http://localhost:4200" />} />
 
 
       </Routes>
