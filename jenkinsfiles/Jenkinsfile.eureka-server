@@ -34,13 +34,16 @@ pipeline {
                 dir("${SERVICE_PATH}") {
                     script {
                         echo "Building and Testing ${SERVICE_NAME}..."
+                        // Ensure Maven generates the XML report the new plugin needs
                         sh 'mvn clean package' 
                         
                         junit '**/target/surefire-reports/*.xml'
-                        jacoco(
-                            execPattern: '**/target/jacoco.exec',
-                            classPattern: '**/target/classes',
-                            sourcePattern: '**/src/main/java'
+                        
+                        // Modern way to record coverage in Jenkins
+                        recordCoverage(
+                            tools: [[parser: 'JACOCO', pattern: '**/target/site/jacoco/jacoco.xml']],
+                            id: 'jacoco',
+                            name: 'JaCoCo Coverage'
                         )
                     }
                 }
