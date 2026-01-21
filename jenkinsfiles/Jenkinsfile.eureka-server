@@ -13,7 +13,8 @@ pipeline {
     environment {
         SERVICE_NAME = 'eureka-server'
         SERVICE_PATH = 'backend/eureka-server/eureka-server'
-        DOCKER_REGISTRY = 'your-dockerhub-username' // Change this to your Docker Hub username or registry
+        // Read from Jenkins environment or .env file
+        DOCKER_REGISTRY = "${env.DOCKER_REGISTRY ?: 'harshg25'}"
         DOCKER_IMAGE = "${DOCKER_REGISTRY}/${SERVICE_NAME}"
         COMPOSE_SERVICE_NAME = 'eureka-server'
     }

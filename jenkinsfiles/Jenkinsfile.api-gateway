@@ -13,7 +13,7 @@ pipeline {
     environment {
         SERVICE_NAME = 'api-gateway'
         SERVICE_PATH = 'backend/api-gateway/gateway'
-        DOCKER_REGISTRY = 'your-dockerhub-username'
+        DOCKER_REGISTRY = "${env.DOCKER_REGISTRY}"
         DOCKER_IMAGE = "${DOCKER_REGISTRY}/${SERVICE_NAME}"
         COMPOSE_SERVICE_NAME = 'api-gateway'
     }
