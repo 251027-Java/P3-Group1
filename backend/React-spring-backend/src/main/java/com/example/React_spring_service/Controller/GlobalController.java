@@ -1,13 +1,18 @@
 package com.example.React_spring_service.Controller;
 
 import com.example.React_spring_service.Entities.*;
+import com.example.React_spring_service.Enum.PostType;
+import com.example.React_spring_service.Repositories.CommunityPostRepository;
+import com.example.React_spring_service.Repositories.UserRepository;
 import com.example.React_spring_service.Services.GlobalDataService;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -16,6 +21,8 @@ import java.util.List;
 public class GlobalController {
 
     private final GlobalDataService globalDataService;
+    private final CommunityPostRepository communityPostRepository;
+    private final UserRepository userRepository;
 
     @GetMapping("/users")
     public ResponseEntity<List<User>> getAllUsers() {
@@ -42,9 +49,88 @@ public class GlobalController {
         return ResponseEntity.ok(globalDataService.getAllCommunityPosts());
     }
 
+    @GetMapping("/community/posts/{postId}")
+    public ResponseEntity<CommunityPost> getPostById(@PathVariable Long postId) {
+        return communityPostRepository.findById(postId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/community/posts/type/{type}")
+    public ResponseEntity<List<CommunityPost>> getPostsByType(@PathVariable String type) {
+        try {
+            PostType postType = PostType.valueOf(type.toUpperCase());
+            List<CommunityPost> posts = communityPostRepository.findByTypeOrderByDateCreatedDesc(postType);
+            return ResponseEntity.ok(posts);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PostMapping("/community/posts")
+    public ResponseEntity<?> createPost(
+            @RequestBody PostRequest request,
+            @RequestHeader(value = "X-User-Id", required = false) Long userId) {
+        
+        // Validate user ID header
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "X-User-Id header is required to create a post"));
+        }
+
+        // Verify user exists
+        User author = userRepository.findById(userId).orElse(null);
+        if (author == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "User not found"));
+        }
+
+        // Validate request
+        if (request.title == null || request.title.trim().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "Title is required"));
+        }
+
+        if (request.type == null || request.type.trim().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "Post type is required"));
+        }
+
+        // Validate post type
+        PostType postType;
+        try {
+            postType = PostType.valueOf(request.type.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "Invalid post type. Valid types: IMAGE, VIDEO, SCREENSHOT, NEWS, FORUM_POST"));
+        }
+
+        // Create post
+        CommunityPost post = CommunityPost.builder()
+                .title(request.title)
+                .description(request.description)
+                .type(postType)
+                .author(author)
+                .tags(request.tags)
+                .attachments(request.attachments)
+                .build();
+
+        CommunityPost savedPost = communityPostRepository.save(post);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedPost);
+    }
+
     @GetMapping("/community/posts/{postId}/comments")
     public ResponseEntity<List<Comment>> getPostComments(@PathVariable Long postId) {
         return ResponseEntity.ok(globalDataService.getCommentsByPost(postId));
+    }
+
+    // Request DTO for creating posts
+    static class PostRequest {
+        public String title;
+        public String description;
+        public String type;
+        public List<String> tags;
+        public List<String> attachments;
     }
 
     @GetMapping("/reviews")
