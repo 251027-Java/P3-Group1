@@ -41,7 +41,8 @@ public class UserService {
     /**
      * Update user profile information
      */
-    public User updateUserProfile(Long userId, String displayName, String displayImage, UserLevel level, Boolean canSell) {
+    public User updateUserProfile(Long userId, String displayName, String displayImage, UserLevel level,
+            Boolean canSell) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
 
@@ -92,7 +93,7 @@ public class UserService {
     public User removeFriend(Long userId, Long friendId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
-        
+
         user.getFriends().removeIf(friend -> friend.getId().equals(friendId));
         return userRepository.save(user);
     }
@@ -106,7 +107,9 @@ public class UserService {
     public List<Long> getUserGamesLibrary(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
-        return user.getGamesInLibrary();
+        return user.getGamesInLibrary().stream()
+                .map(num -> (Long) num) // Force cast to Long
+                .toList();
     }
 
     /**
@@ -115,13 +118,14 @@ public class UserService {
     public User addGameToLibrary(Long userId, Long gameId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
-        
+
         // Verify game exists
         gameRepository.findById(gameId)
                 .orElseThrow(() -> new RuntimeException("Game not found with id: " + gameId));
 
         if (!user.getGamesInLibrary().contains(gameId)) {
-            user.getGamesInLibrary().add(gameId);
+
+            ((List) user.getGamesInLibrary()).add(gameId);
         }
         return userRepository.save(user);
     }
@@ -132,7 +136,7 @@ public class UserService {
     public User removeGameFromLibrary(Long userId, Long gameId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
-        
+
         user.getGamesInLibrary().remove(gameId);
         return userRepository.save(user);
     }
@@ -144,8 +148,11 @@ public class UserService {
     public List<Game> getUserGamesLibraryFull(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
-        
+
         return user.getGamesInLibrary().stream()
+                // 1. Explicitly cast the 'Number' capture to 'Long'
+                .map(gameId -> (Long) gameId)
+                // 2. Now the repository will accept the Long
                 .map(gameId -> gameRepository.findById(gameId).orElse(null))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
@@ -160,7 +167,7 @@ public class UserService {
     public List<Long> getUserWishlist(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
-        return user.getWishlist();
+        return ((List) user.getWishlist());
     }
 
     /**
@@ -169,13 +176,13 @@ public class UserService {
     public User addGameToWishlist(Long userId, Long gameId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
-        
+
         // Verify game exists
         gameRepository.findById(gameId)
                 .orElseThrow(() -> new RuntimeException("Game not found with id: " + gameId));
 
         if (!user.getWishlist().contains(gameId)) {
-            user.getWishlist().add(gameId);
+            ((List) user.getWishlist()).add(gameId);
         }
         return userRepository.save(user);
     }
@@ -186,7 +193,7 @@ public class UserService {
     public User removeGameFromWishlist(Long userId, Long gameId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
-        
+
         user.getWishlist().remove(gameId);
         return userRepository.save(user);
     }
@@ -198,8 +205,11 @@ public class UserService {
     public List<Game> getUserWishlistFull(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
-        
+
         return user.getWishlist().stream()
+                // Map the '? extends Number' to 'Long' explicitly
+                .map(num -> (Long) num)
+                // Now you can safely pass it to the repository
                 .map(gameId -> gameRepository.findById(gameId).orElse(null))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
@@ -236,7 +246,7 @@ public class UserService {
     public User removeRewardFromUser(Long userId, Long rewardId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
-        
+
         user.getRewards().removeIf(reward -> reward.getId().equals(rewardId));
         return userRepository.save(user);
     }
@@ -259,7 +269,7 @@ public class UserService {
     public User addNotification(Long userId, Map<String, Object> notification) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
-        
+
         user.getNotifications().add(notification);
         return userRepository.save(user);
     }
@@ -270,7 +280,7 @@ public class UserService {
     public User clearNotifications(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
-        
+
         user.getNotifications().clear();
         return userRepository.save(user);
     }
@@ -281,7 +291,7 @@ public class UserService {
     public User removeNotification(Long userId, int notificationIndex) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
-        
+
         if (notificationIndex >= 0 && notificationIndex < user.getNotifications().size()) {
             user.getNotifications().remove(notificationIndex);
         }
@@ -309,7 +319,7 @@ public class UserService {
     public Map<String, Object> getUserStatistics(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
-        
+
         Map<String, Object> stats = new HashMap<>();
         stats.put("userId", user.getId());
         stats.put("displayName", user.getDisplayName());
@@ -321,7 +331,7 @@ public class UserService {
         stats.put("totalRewards", user.getRewards().size());
         stats.put("totalPosts", user.getCommunityPosts().size());
         stats.put("unreadNotifications", user.getNotifications().size());
-        
+
         return stats;
     }
 }
