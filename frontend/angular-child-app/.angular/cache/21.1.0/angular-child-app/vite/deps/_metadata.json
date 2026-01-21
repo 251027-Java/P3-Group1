@@ -1,0 +1,49 @@
+{
+  "hash": "9863c41a",
+  "configHash": "faa33036",
+  "lockfileHash": "c1787f8e",
+  "browserHash": "7ff7ed72",
+  "optimized": {
+    "@angular/common": {
+      "src": "../../../../../../node_modules/@angular/common/fesm2022/common.mjs",
+      "file": "@angular_common.js",
+      "fileHash": "4b8885cf",
+      "needsInterop": false
+    },
+    "@angular/core": {
+      "src": "../../../../../../node_modules/@angular/core/fesm2022/core.mjs",
+      "file": "@angular_core.js",
+      "fileHash": "321f83b2",
+      "needsInterop": false
+    },
+    "@angular/platform-browser": {
+      "src": "../../../../../../node_modules/@angular/platform-browser/fesm2022/platform-browser.mjs",
+      "file": "@angular_platform-browser.js",
+      "fileHash": "8affbe00",
+      "needsInterop": false
+    },
+    "@angular/router": {
+      "src": "../../../../../../node_modules/@angular/router/fesm2022/router.mjs",
+      "file": "@angular_router.js",
+      "fileHash": "19bbbc02",
+      "needsInterop": false
+    },
+    "single-spa-angular": {
+      "src": "../../../../../../node_modules/single-spa-angular/fesm2022/single-spa-angular.mjs",
+      "file": "single-spa-angular.js",
+      "fileHash": "02564d67",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "chunk-LAWKAMMG": {
+      "file": "chunk-LAWKAMMG.js"
+    },
+    "chunk-5JRBXVLQ": {
+      "file": "chunk-5JRBXVLQ.js"
+    },
+    "chunk-YXYHJZHY": {
+      "file": "chunk-YXYHJZHY.js"
+    }
+  }
+}
