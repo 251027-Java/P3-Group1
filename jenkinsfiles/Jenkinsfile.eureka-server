@@ -55,7 +55,9 @@ pipeline {
                 dir("${SERVICE_PATH}") {
                     // 'SonarQube' must match the name in Manage Jenkins > System
                     withSonarQubeEnv('SonarQube') {
-                        sh "mvn sonar:sonar -Dsonar.projectKey=${SONAR_PROJECT_KEY} -Dsonar.host.url=${SONAR_HOST_URL}"
+                        // Using host.docker.internal since Jenkins and SonarQube are likely in different networks
+                        // but SonarQube port 9000 is mapped to the host.
+                        sh "mvn sonar:sonar -Dsonar.projectKey=${SONAR_PROJECT_KEY} -Dsonar.host.url=http://host.docker.internal:9000"
                     }
                 }
             }
