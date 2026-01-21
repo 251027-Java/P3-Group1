@@ -1,0 +1,67 @@
+<div class="game-container">
+  <div class="header">
+    <h1>🐦 Flappy Bird</h1>
+    <div class="high-score">High Score: {{highScore}}</div>
+  </div>
+  
+  <div class="canvas-wrapper">
+    <canvas 
+      #gameCanvas 
+      [width]="CANVAS_WIDTH" 
+      [height]="CANVAS_HEIGHT"
+      class="game-canvas">
+    </canvas>
+    
+    <!-- Start Screen -->
+    <div *ngIf="gameState === 'start'" class="overlay">
+      <div class="modal start-modal">
+        <h2>🐦 Flappy Bird</h2>
+        <div class="instructions">
+          <p class="instruction-item">🖱️ Click or Tap to flap</p>
+          <p class="instruction-item">⌨️ Press SPACE to flap</p>
+          <p class="instruction-item">🎯 Avoid the pipes!</p>
+        </div>
+        <div class="tap-hint">
+          <p class="pulse">👆 Click anywhere to start!</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Game Over Screen -->
+    <div *ngIf="gameState === 'gameOver'" class="overlay">
+      <div class="modal game-over-modal">
+        <h2>Game Over!</h2>
+        
+        <div class="score-board">
+          <div class="score-row">
+            <span class="label">Score:</span>
+            <span class="value">{{score}}</span>
+          </div>
+          <div class="score-row">
+            <span class="label">Best:</span>
+            <span class="value">{{highScore}}</span>
+          </div>
+        </div>
+        
+        <div *ngIf="medal" class="medal-container">
+          <div class="medal">
+            <span class="medal-icon">{{getMedalEmoji()}}</span>
+            <span class="medal-text">
+              {{ medal === 'gold' ? 'Gold Medal!' : medal === 'silver' ? 'Silver Medal!' : 'Bronze Medal!' }}
+            </span>
+          </div>
+        </div>
+        
+        <button (click)="restartGame()" class="btn btn-play">
+          🔄 Play Again
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="footer">
+    <p class="controls-hint" *ngIf="gameState === 'playing'">
+      Click, Tap, or Press SPACE to flap
+    </p>
+  </div>
+</div>
