@@ -1,4 +1,5 @@
 import http from './http';
+import type { CommunityPost } from '../components/Community/CommunityPost';
 
 export interface CreatePostRequest {
   title: string;
@@ -8,27 +9,27 @@ export interface CreatePostRequest {
   attachments?: string[];
 }
 
-export const getCommunityPosts = async () => {
+export const getCommunityPosts = async (): Promise<CommunityPost[]> => {
   try {
-    return await http('/community/posts');
+    return await http<CommunityPost[]>('/community/posts');
   } catch (error) {
     console.error('Error fetching community posts:', error);
     throw error;
   }
 };
 
-export const getCommunityPostsByType = async (type: string) => {
+export const getCommunityPostsByType = async (type: string): Promise<CommunityPost[]> => {
   try {
-    return await http(`/community/posts/type/${type}`);
+    return await http<CommunityPost[]>(`/community/posts/type/${type}`);
   } catch (error) {
     console.error(`Error fetching posts by type ${type}:`, error);
     throw error;
   }
 };
 
-export const getCommunityPostById = async (id: number) => {
+export const getCommunityPostById = async (id: number): Promise<CommunityPost> => {
   try {
-    return await http(`/community/posts/${id}`);
+    return await http<CommunityPost>(`/community/posts/${id}`);
   } catch (error) {
     console.error(`Error fetching post ${id}:`, error);
     throw error;

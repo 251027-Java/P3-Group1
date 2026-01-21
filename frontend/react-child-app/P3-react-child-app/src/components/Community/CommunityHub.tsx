@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getCommunityPosts, getCommunityPostsByType, createCommunityPost } from '../../api/community';
 import type { CommunityPost } from './CommunityPost';
