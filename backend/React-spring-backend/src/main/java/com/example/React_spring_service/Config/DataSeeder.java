@@ -73,6 +73,12 @@ public class DataSeeder implements CommandLineRunner {
                                 .notifications(List.of(Map.of("title", "Welcome to P3!", "read", false)))
                                 .build();
 
+                // Save users first
+                userRepository.saveAll(List.of(dev, player));
+
+                // Create friendship between dev and player
+                dev.getFriends().add(player);
+                player.getFriends().add(dev);
                 userRepository.saveAll(List.of(dev, player));
 
                 // 3. Create a Game
