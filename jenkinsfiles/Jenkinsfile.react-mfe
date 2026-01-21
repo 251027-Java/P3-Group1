@@ -1,0 +1,90 @@
+pipeline {
+    agent any
+
+    parameters {
+        string(name: 'BRANCH', defaultValue: 'main', description: 'Branch to build')
+    }
+
+    environment {
+        SERVICE_NAME = 'react-mfe'
+        SERVICE_PATH = 'frontend/react-child-app/P3-react-child-app'
+        DOCKER_IMAGE = "local/${SERVICE_NAME}"
+        SONAR_PROJECT_KEY = "${SERVICE_NAME}"
+        NODE_VERSION = '18'
+        // Matches service name in root docker-compose.yml
+        COMPOSE_SERVICE_NAME = 'react-frontend'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout([$class: 'GitSCM',
+                    branches: [[name: "*/${params.BRANCH}"]],
+                    userRemoteConfigs: [[url: 'your-repo-url']]
+                ])
+            }
+        }
+
+        stage('Build & Test') {
+            steps {
+                dir("${SERVICE_PATH}") {
+                    script {
+                        echo "Building and Testing ${SERVICE_NAME}..."
+                        sh """
+                            npm install
+                            npm run build
+                        """
+                        // Run tests (watchAll=false is crucial for CI)
+                        sh 'npm run test -- --watchAll=false'
+                    }
+                }
+            }
+        }
+
+        stage('Static Analysis') {
+            steps {
+                dir("${SERVICE_PATH}") {
+                    withSonarQubeEnv('SonarQube') {
+                        sh """
+                            sonar-scanner \
+                            -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                            -Dsonar.projectName=${SERVICE_NAME} \
+                            -Dsonar.sources=src 
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
+        stage('Local Deploy') {
+            when { branch 'main' }
+            steps {
+                dir("${SERVICE_PATH}") {
+                    script {
+                        echo "Deploying via Docker Compose (Root)..."
+                        // Service Path: frontend/react-child-app/P3-react-child-app
+                        // Path to root: ../../../
+                        sh "docker-compose -f ../../../docker-compose.yml up --build -d ${COMPOSE_SERVICE_NAME}"
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+        success {
+            echo "Successfully deployed ${SERVICE_NAME} to local environment!"
+        }
+    }
+}

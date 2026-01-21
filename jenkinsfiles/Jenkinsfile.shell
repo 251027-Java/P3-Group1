@@ -1,0 +1,50 @@
+pipeline {
+    agent any
+
+    parameters {
+        string(name: 'BRANCH', defaultValue: 'main', description: 'Branch to build')
+    }
+
+    environment {
+        SERVICE_NAME = 'shell'
+        SERVICE_PATH = 'frontend/shell'
+        DOCKER_IMAGE = "local/${SERVICE_NAME}"
+        // Matches service name we will add to root docker-compose.yml
+        COMPOSE_SERVICE_NAME = 'shell'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout([$class: 'GitSCM',
+                    branches: [[name: "*/${params.BRANCH}"]],
+                    userRemoteConfigs: [[url: 'your-repo-url']]
+                ])
+            }
+        }
+
+        // Skipping Build/Test Stages for Shell as requested/implied by structure (static site)
+        
+        stage('Local Deploy') {
+            when { branch 'main' }
+            steps {
+                dir("${SERVICE_PATH}") {
+                    script {
+                        echo "Deploying via Docker Compose (Root)..."
+                        // Shell path to root: ../../
+                        sh "docker-compose -f ../../docker-compose.yml up --build -d ${COMPOSE_SERVICE_NAME}"
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+        success {
+            echo "Successfully deployed ${SERVICE_NAME} to local environment!"
+        }
+    }
+}
