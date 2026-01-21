@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { getCommunityPostById } from '../../api/community';
 import type { CommunityPost } from './CommunityPost';
-import { http } from '../../api/http';
+import http from '../../api/http';
 
 interface Comment {
   id: number;
@@ -51,8 +51,8 @@ const CommunityThreads = () => {
     if (!postId) return;
     
     try {
-      const response = await http.get(`/api/community/posts/${postId}/comments`);
-      setComments(response.data);
+      const data = await http(`/community/posts/${postId}/comments`);
+      setComments(data);
     } catch (err) {
       console.error('Failed to load comments:', err);
     }

@@ -1,4 +1,4 @@
-import { http } from './http';
+import http from './http';
 
 export interface CreatePostRequest {
   title: string;
@@ -10,8 +10,7 @@ export interface CreatePostRequest {
 
 export const getCommunityPosts = async () => {
   try {
-    const response = await http.get('/api/community/posts');
-    return response.data;
+    return await http('/community/posts');
   } catch (error) {
     console.error('Error fetching community posts:', error);
     throw error;
@@ -20,8 +19,7 @@ export const getCommunityPosts = async () => {
 
 export const getCommunityPostsByType = async (type: string) => {
   try {
-    const response = await http.get(`/api/community/posts/type/${type}`);
-    return response.data;
+    return await http(`/community/posts/type/${type}`);
   } catch (error) {
     console.error(`Error fetching posts by type ${type}:`, error);
     throw error;
@@ -30,8 +28,7 @@ export const getCommunityPostsByType = async (type: string) => {
 
 export const getCommunityPostById = async (id: number) => {
   try {
-    const response = await http.get(`/api/community/posts/${id}`);
-    return response.data;
+    return await http(`/community/posts/${id}`);
   } catch (error) {
     console.error(`Error fetching post ${id}:`, error);
     throw error;
@@ -40,12 +37,13 @@ export const getCommunityPostById = async (id: number) => {
 
 export const createCommunityPost = async (payload: CreatePostRequest, userId: number) => {
   try {
-    const response = await http.post('/api/community/posts', payload, {
+    return await http('/community/posts', {
+      method: 'POST',
       headers: {
         'X-User-Id': userId.toString()
-      }
+      },
+      body: payload
     });
-    return response.data;
   } catch (error) {
     console.error('Error creating community post:', error);
     throw error;
