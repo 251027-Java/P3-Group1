@@ -8,28 +8,27 @@ spring:
   cloud:
     gateway:
       routes: # add a route for each new microservice
-#        - id: order-service
-#          uri: lb://ORDER-SERVICE
-#          predicates:
-#            - Path=/api/orders/**
-#          filters:
-#            - RewritePath=/api/orders/(?<segment>.*), /orders/${segment}
+        - id: angular-service
+          uri: lb://ANGULAR-SPRING-SERVICE
+          predicates:
+            - Path=/api/angular/**
+          filters:
+            - RewritePath=/api/angular/(?<segment>.*), /${segment}
+
+        - id: react-service
+          uri: lb://REACT-SPRING-SERVICE
+          predicates:
+            - Path=/api/**
 
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka
-#will/may want to replace above with below as we move to Docker, Kubernetes, or cloud environments
-#eureka:
-#  client:
-#    service-url:
-#      defaultZone: ${EUREKA_SERVER_URL:http://eureka-server:8761/eureka/}
-#        localhost only works for same-machine setups -> Only works if the Eureka server is running on the same machine as the client
-#        eureka-server needs to be the name of the service in the docker compose file; doesnt need to match the name of the container or the springboot app
-#    register-with-eureka: true # default: true
-#    fetch-registry: true # default: true
-#  instance:
-#    prefer-ip-address: true # default: false. false is fine for local dev, but switch to true in containerized / cloud environments
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://eureka-server:8761/eureka}
+    register-with-eureka: true
+    fetch-registry: true
+
+  instance:
+    prefer-ip-address: true
 
 management:
   endpoints:
