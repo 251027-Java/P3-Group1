@@ -2,6 +2,7 @@ import './App.css'
 // App.tsx
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import IframeWrapper from './iframwrapper/IframeWrapper';
+import GameIframeWrapper from './components/GameIframeWrapper';
 import Navbar from './components/Navbar';
 import Profile from './components/Profile';
 import GamesDashboard from './components/GamesDashboard';
@@ -17,75 +18,77 @@ import UploadGame from './components/UploadGame';
 import UploadWebGame from './components/UploadGame';
 
 function App() {
-  
+
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [cartItems, setCartItems] = useState([
     { title: "Cyber Protocol: Red", price: 24.99 },
     { title: "P3 Stealth Assets", price: 12.00 }
   ]);
-  
+
   return (
     <Router>
-      <Navbar onCartClick={() => setIsCartOpen(true)} cartCount={cartItems.length}/>
-      
+      <Navbar onCartClick={() => setIsCartOpen(true)} cartCount={cartItems.length} />
 
-    <div className='pt-[72px]'>
-      <Cart 
-        isOpen={isCartOpen} 
-        onClose={() => setIsCartOpen(false)} 
-        items={cartItems} 
-      />
-      <Routes>
-        <Route path="/*" element={<IframeWrapper baseUrl="http://localhost:4200" />} />
 
-        <Route 
-          path="/profile" 
-          element={<Profile/>} 
+      <div className='pt-[72px]'>
+        <Cart
+          isOpen={isCartOpen}
+          onClose={() => setIsCartOpen(false)}
+          items={cartItems}
         />
+        <Routes>
+          <Route path="/games/bubble-trouble" element={<GameIframeWrapper game="bubble-trouble" />} />
+          <Route path="/games/flappy-bird" element={<GameIframeWrapper game="flappy-bird" />} />
+          <Route path="/*" element={<IframeWrapper baseUrl="http://localhost:4200" />} />
 
-        <Route 
-          path="/GamesDashboard" 
-          element={<GamesDashboard/>} 
-        />
+          <Route
+            path="/profile"
+            element={<Profile />}
+          />
 
-        <Route 
-          path="/CommunityHub" 
-          element={<CommunityHub/>} 
-        />
+          <Route
+            path="/GamesDashboard"
+            element={<GamesDashboard />}
+          />
 
-        <Route 
-          path="/CommunityThreads" 
-          element={<CommunityThreads/>} 
-        />
+          <Route
+            path="/CommunityHub"
+            element={<CommunityHub />}
+          />
 
-        <Route 
-          path="/GameProfile" 
-          element={<GameProfile/>} 
-        />
+          <Route
+            path="/CommunityThreads"
+            element={<CommunityThreads />}
+          />
 
-        <Route 
-          path="/GameInventory" 
-          element={<GameInventory/>} 
-        />
+          <Route
+            path="/GameProfile"
+            element={<GameProfile />}
+          />
 
-        <Route 
-          path="/Wishlist" 
-          element={<Wishlist/>} 
-        />
+          <Route
+            path="/GameInventory"
+            element={<GameInventory />}
+          />
 
-        <Route 
-          path="/Rewards" 
-          element={<RewardsPage/>} 
-        />
+          <Route
+            path="/Wishlist"
+            element={<Wishlist />}
+          />
 
-        <Route 
-          path="/UploadGame" 
-          element={<UploadWebGame/>} 
-        />
+          <Route
+            path="/Rewards"
+            element={<RewardsPage />}
+          />
+
+          <Route
+            path="/UploadGame"
+            element={<UploadWebGame />}
+          />
 
 
-      </Routes>
-    </div>
+        </Routes>
+      </div>
     </Router>
   );
 }

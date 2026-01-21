@@ -27,10 +27,10 @@ public class GlobalController {
         return ResponseEntity.ok(globalDataService.getAllUsers());
     }
 
-    @GetMapping("/games")
-    public ResponseEntity<List<Game>> getAllGames() {
-        return ResponseEntity.ok(globalDataService.getAllGames());
-    }
+    // @GetMapping("/games")
+    // public ResponseEntity<List<Game>> getAllGames() {
+    // return ResponseEntity.ok(globalDataService.getAllGames());
+    // }
 
     @GetMapping("/rewards")
     public ResponseEntity<List<Reward>> getAllRewards() {
