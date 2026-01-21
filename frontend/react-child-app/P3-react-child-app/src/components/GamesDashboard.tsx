@@ -15,32 +15,51 @@ const GamesDashboard = () => {
   const navigate = useNavigate();
 
   React.useEffect(() => {
+    // 1. Fetch Games with Error Handling
     fetch('http://localhost:8080/api/games')
-      .then(res => res.json())
-      .then(data => setGames(data))
-      .catch(err => console.error(err));
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        return res.json();
+      })
+      .then(data => {
+        // Ensure data is an array before setting state to avoid .reduce() crash
+        if (Array.isArray(data)) {
+          setGames(data);
+        } else {
+          console.error("API did not return an array of games:", data);
+          setGames([]); 
+        }
+      })
+      .catch(err => {
+        console.error("Failed to fetch games:", err);
+        setGames([]); // Fallback to empty array
+      });
 
-    // Fetch most recent community post
+    // 2. Fetch Community Posts
     fetch('http://localhost:8080/api/community/posts')
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error('Community API error');
+        return res.json();
+      })
       .then(posts => {
+        // Logic for sorting and setting posts remains similar but wrapped in array check
         if (Array.isArray(posts) && posts.length > 0) {
-          // Sort by dateCreated descending, fallback to id if needed
-          const sorted = posts.sort((a, b) => {
+          const sorted = [...posts].sort((a, b) => { // Use spread to avoid mutating original if needed
             if (a.dateCreated && b.dateCreated) {
               return new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime();
             }
             return (b.id || 0) - (a.id || 0);
           });
+          
           setRecentPost(sorted[0]);
 
-          // Find most recent IMAGE post
-          const imagePosts = sorted.filter(post => post.type === 'IMAGE' && Array.isArray(post.attachments) && post.attachments.length > 0);
-          if (imagePosts.length > 0) {
-            setRecentImagePost(imagePosts[0]);
-          } else {
-            setRecentImagePost(null);
-          }
+          const imagePosts = sorted.filter(post => 
+            post.type === 'IMAGE' && 
+            Array.isArray(post.attachments) && 
+            post.attachments.length > 0
+          );
+          
+          setRecentImagePost(imagePosts.length > 0 ? imagePosts[0] : null);
         }
       })
       .catch(err => console.error('Failed to fetch recent post:', err));
