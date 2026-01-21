@@ -1,28 +1,16 @@
-# ---------- Stage 1: Dependencies ----------
-FROM node:18-alpine AS deps
+FROM node:20-alpine
 
 WORKDIR /app
 
-# Copy only dependency files for caching
+# Copy dependency manifests
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci
+# Install dependencies (includes @angular/cli)
+RUN npm install
 
-
-# ---------- Stage 2: Development ----------
-FROM node:18-alpine
-
-WORKDIR /app
-
-# Copy node_modules from deps stage
-COPY --from=deps /app/node_modules ./node_modules
-
-# Copy source code (will be overridden by volume in dev)
+# Copy source code
 COPY . .
 
-# Expose Angular dev server port
 EXPOSE 4200
 
-# Start Angular dev server
 CMD ["npm", "start"]

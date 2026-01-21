@@ -1,29 +1,20 @@
-# =========================
-# STAGE 1: Build (compile + verify)
-# =========================
-FROM maven:3.9.6-eclipse-temurin-21 AS build
+# Use Maven + JDK image for dev
+FROM maven:3.9.6-eclipse-temurin-21
+
+# Set working directory
 WORKDIR /app
 
-# Cache dependencies first
+# Copy pom.xml first to cache dependencies
 COPY pom.xml .
-RUN mvn -B dependency:go-offline
 
-# Copy source and build
-COPY src ./src
-RUN mvn -B clean package -DskipTests
+# Pre-download dependencies
+RUN mvn dependency:go-offline
 
-
-# =========================
-# STAGE 2: Development
-# =========================
-FROM maven:3.9.6-eclipse-temurin-21 AS dev
-WORKDIR /app
-
-# Copy project files (will be overridden by volume in dev)
-COPY pom.xml .
+# Copy source code
 COPY src ./src
 
+# Expose Spring Boot port
 EXPOSE 8080
 
-# Run Spring Boot in dev mode
+# Run the app in dev mode
 CMD ["mvn", "spring-boot:run"]

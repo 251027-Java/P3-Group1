@@ -19,7 +19,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U user"]
+      test: ["CMD-SHELL", "pg_isready -U user -d db"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -118,13 +118,13 @@ services:
       EUREKA_URI: http://eureka-server:8761/eureka
     volumes:
       - react_service_logs:/var/log/react-service
-      - ./backend/React-spring-backend:/app
+      - ./backend/React-spring-backend:/app   # <-- mount source for hot reload
     healthcheck:
-      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1" ]
-      interval: 15s # Give it 15s between checks
-      timeout: 10s # Wait up to 10s for a response
-      retries: 5 # Allow 5 failures before marking "Unhealthy"
-      start_period: 40s # CRITICAL: Gives Spring Boot time to boot up before checking
+      test: ["CMD-SHELL", "nc -z localhost 8080 || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
 
   angular-backend:
     build:
@@ -147,9 +147,9 @@ services:
       EUREKA_URI: http://eureka-server:8761/eureka
     volumes:
       - angular_service_logs:/var/log/angular-service
-      - ./backend/Angular-spring-backend:/app
+      - ./backend/Angular-spring-backend:/app   # <-- mount source for hot reload
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1"]
+      test: ["CMD-SHELL", "nc -z localhost 8080 || exit 1"]
       interval: 15s
       timeout: 10s
       retries: 5
