@@ -266,18 +266,21 @@ function gameLoop() {
       updateUI();
 
       if (lives > 0) {
+        // Clear bubbles and harpoons immediately to prevent further collisions
+        bubbles = [];
+        harpoons = [];
+
         setTimeout(() => {
           initLevel(currentLevel);
           isRespawning = false;
         }, GAME_CONFIG.RESPAWN_DELAY);
+
+        // Don't return or continue - let the game loop continue rendering
+        break; // Exit the bubble loop since we cleared the array
       } else {
         endGame(false);
         return;
       }
-
-      bubbles = [];
-      harpoons = [];
-      continue;
     }
 
     let bubbleHit = false;

@@ -7,6 +7,8 @@ This file is not proper, it has a bunch of copy past code. this is how you would
 
 */
 
+import type { userDTO, RegisterDTO, commentsPostDTO } from '../types';
+
 const API_BASE_URL = 'http://localhost:8080/api';
 
 class UserApiService {
@@ -16,16 +18,16 @@ class UserApiService {
 
   constructor() {
     const savedSession = localStorage.getItem(this.STORAGE_KEY);
-      if (savedSession) {
-        try {
-          this._currentUser = JSON.parse(savedSession);
-        } catch (e) {
-          console.error("Failed to parse stored session", e);
-          localStorage.removeItem(this.STORAGE_KEY);
-        }
+    if (savedSession) {
+      try {
+        this._currentUser = JSON.parse(savedSession);
+      } catch (e) {
+        console.error("Failed to parse stored session", e);
+        localStorage.removeItem(this.STORAGE_KEY);
       }
+    }
   }
-  
+
 
   // 2. Getter to easily access the cached user
   public get currentUser(): userDTO | null {
@@ -40,13 +42,13 @@ class UserApiService {
   // Login your user
   // create local storage retrievel for a session
   // Return null if the user does not exist.
-  login = async(userEmail: string, userPassword: string): Promise<userDTO | null> => {
-    try{
+  login = async (userEmail: string, userPassword: string): Promise<userDTO | null> => {
+    try {
 
       console.log("Did it get here?")
       console.log(userEmail)
       console.log(userPassword)
-    
+
       const response = await fetch(`${API_BASE_URL}/User/auth`, {
         method: 'POST', // Explicitly set the method
         headers: {
@@ -61,16 +63,16 @@ class UserApiService {
 
       if (response.status === 404 || response.status === 401) {
         console.warn("User not found or invalid credentials");
-        return null; 
+        return null;
       }
 
-      if(!response.ok){
+      if (!response.ok) {
         throw new Error(`Could not get response from server: ${response.statusText}`)
       }
 
       const loggedIn = await response.json();
 
-      if(loggedIn){
+      if (loggedIn) {
 
         this._currentUser = loggedIn
 
@@ -79,8 +81,8 @@ class UserApiService {
         return loggedIn;
       }
       return loggedIn;
-      
-    } catch(error){
+
+    } catch (error) {
       console.error(`Error loading user: ${error}`)
       throw error
     }
@@ -162,16 +164,16 @@ class UserApiService {
   getUserById = async (userId: number): Promise<userDTO> => {
     try {
       const response = await fetch(`${API_BASE_URL}/search/User?Id=${userId}`);
-      
+
       if (!response.ok) {
         throw new Error(`Failed to load user: ${response.statusText}`);
       }
-      
+
       const user = await response.json();
 
       // 4. Save the user object internally after fetching
-      this._currentUser = user; 
-      
+      this._currentUser = user;
+
       return user;
     } catch (error) {
       console.error('Error loading user:', error);
@@ -222,26 +224,26 @@ class UserApiService {
     }
   }
 
-    saveComment = async (post: commentsPostDTO): Promise<commentsPostDTO> => {
-      try {
-        const response = await fetch(`${API_BASE_URL}/saveComment`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(post),
-        });
-  
-        if (!response.ok) {
-          throw new Error(`Failed to save post: ${response.statusText}`);
-        }
-  
-        return await response.json();
-      } catch (error) {
-        console.error('Error saving forum post:', error);
-        throw error;
+  saveComment = async (post: commentsPostDTO): Promise<commentsPostDTO> => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/saveComment`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(post),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to save post: ${response.statusText}`);
       }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error saving forum post:', error);
+      throw error;
     }
+  }
 
 
 }

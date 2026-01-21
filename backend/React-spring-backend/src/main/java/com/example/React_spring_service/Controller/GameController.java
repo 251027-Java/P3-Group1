@@ -17,74 +17,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/games")
-@CrossOrigin(origins = "*")
-public class GameController {
-    
-    @Autowired
-    private GameService gameService;
-    
-    // Get all games
-    @GetMapping
-    public ResponseEntity<List<GameEntity>> getAllGames() {
-        List<GameEntity> games = gameService.getAllGames();
-        return ResponseEntity.ok(games);
-    }
-    
-    // Get game by ID
-    @GetMapping("/{id}")
-    public ResponseEntity<GameEntity> getGameById(@PathVariable Long id) {
-        return gameService.getGameById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-    
-    // Get game by name
-    @GetMapping("/name/{name}")
-    public ResponseEntity<GameEntity> getGameByName(@PathVariable String name) {
-        return gameService.getGameByName(name)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-    
-    // Create a new game
-    @PostMapping
-    public ResponseEntity<GameEntity> createGame(@RequestBody Map<String, String> gameData) {
-        try {
-            String name = gameData.get("name");
-            String description = gameData.get("description");
-            
-            GameEntity game = gameService.createGame(name, description);
-            return ResponseEntity.status(HttpStatus.CREATED).body(game);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
-    }
-    
-    // Update game
-    @PutMapping("/{id}")
-    public ResponseEntity<GameEntity> updateGame(
-            @PathVariable Long id,
-            @RequestBody Map<String, String> gameData) {
-        try {
-            String name = gameData.get("name");
-            String description = gameData.get("description");
-            
-            GameEntity game = gameService.updateGame(id, name, description);
-            return ResponseEntity.ok(game);
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-    
-    // Delete game
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteGame(@PathVariable Long id) {
-        try {
-            gameService.deleteGame(id);
-            return ResponseEntity.noContent().build();
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 public class GameController {
@@ -92,6 +24,16 @@ public class GameController {
     private final GameRepository gameRepository;
     private final ReviewRepository reviewRepository;
     private final UserRepository userRepository;
+
+    /**
+     * GET /api/games
+     * Returns a list of all games
+     */
+    @GetMapping
+    public ResponseEntity<List<Game>> getAllGames() {
+        List<Game> games = gameRepository.findAll();
+        return ResponseEntity.ok(games);
+    }
 
     /**
      * GET /api/games/{id}
@@ -106,7 +48,8 @@ public class GameController {
 
     /**
      * GET /api/games/{id}/reviews
-     * Returns all reviews for a specific game, ordered by creation date (newest first)
+     * Returns all reviews for a specific game, ordered by creation date (newest
+     * first)
      */
     @GetMapping("/{id}/reviews")
     public ResponseEntity<List<Review>> getReviewsByGameId(@PathVariable Long id) {
@@ -127,14 +70,15 @@ public class GameController {
      * Request body: { "ratingNumber": 1-5, "content": "review text" }
      * Header: X-User-Id (required to simulate logged-in user)
      * 
-     * Returns 201 on success, 400 for validation errors, 401 if no user ID, 409 if review already exists
+     * Returns 201 on success, 400 for validation errors, 401 if no user ID, 409 if
+     * review already exists
      */
     @PostMapping("/{id}/reviews")
     public ResponseEntity<?> createReview(
             @PathVariable Long id,
             @RequestBody ReviewRequest request,
             @RequestHeader(value = "X-User-Id", required = false) Long userId) {
-        
+
         // Validate user ID header (simulates authentication)
         if (userId == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
