@@ -53,23 +53,20 @@ public class User {
 
     // --- JSONB (ID LISTS & METADATA) ---
 
-    @Lob
     @Column(columnDefinition = "TEXT")
     @Convert(converter = JsonConverter.class)
     @Builder.Default
     // FIX 1: Use Number to handle both Integer (from DB) and Long (intended)
     // FIX 2: Add @JsonIgnore so a "Game" request doesn't leak the whole library
     @JsonIgnore
-    private List<? extends Number> gamesInLibrary = new ArrayList<>();
+    private List<Number> gamesInLibrary = new ArrayList<>();
 
-    @Lob
     @Column(columnDefinition = "TEXT")
     @Convert(converter = JsonConverter.class)
     @Builder.Default
     @JsonIgnore
-    private List<? extends Number> wishlist = new ArrayList<>();
+    private List<Long> wishlist = new ArrayList<>();
 
-    @Lob
     @Column(columnDefinition = "TEXT")
     @Convert(converter = JsonConverter.class)
     @Builder.Default
