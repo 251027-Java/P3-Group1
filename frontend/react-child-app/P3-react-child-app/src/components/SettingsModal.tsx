@@ -257,15 +257,15 @@ const SettingsModal = ({ isOpen, onClose, user, onUserUpdate }: SettingsModalPro
           {/* Security Tab */}
           {activeTab === "security" && (
             <div className="space-y-4">
-              <p className="text-gray-400 text-sm">Security settings coming soon...</p>
+              <p className="text-gray-400 text-sm">Security settings are managed in the main application.</p>
               <div className="space-y-3">
                 <div className="bg-[#0a0a0a] border border-white/10 rounded-lg p-4">
-                  <h3 className="text-sm font-bold uppercase mb-2">Change Password</h3>
-                  <p className="text-xs text-gray-500">Update your password regularly for security</p>
+                  <h3 className="text-sm font-bold uppercase mb-2">Session Management</h3>
+                  <p className="text-xs text-gray-500">View active sessions and device logins</p>
                 </div>
                 <div className="bg-[#0a0a0a] border border-white/10 rounded-lg p-4">
-                  <h3 className="text-sm font-bold uppercase mb-2">Two-Factor Authentication</h3>
-                  <p className="text-xs text-gray-500">Add an extra layer of security to your account</p>
+                  <h3 className="text-sm font-bold uppercase mb-2">Activity Log</h3>
+                  <p className="text-xs text-gray-500">Review recent account activity and changes</p>
                 </div>
               </div>
             </div>
