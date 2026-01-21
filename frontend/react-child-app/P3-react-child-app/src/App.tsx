@@ -3,6 +3,7 @@ import './App.css'
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import IframeWrapper from './iframwrapper/IframeWrapper';
 import GameIframeWrapper from './components/GameIframeWrapper';
+import GameIframe from './iframwrapper/GameIframe';
 import Navbar from './components/Navbar';
 import Profile from './components/Profile';
 import GamesDashboard from './components/GamesDashboard';
@@ -11,11 +12,13 @@ import CommunityThreads from './components/Community/CommunityThreads';
 import GameProfile from './components/GamePage/GameProfile';
 import Cart from './components/Cart';
 import { useState } from 'react';
-import GameInventory from './components/GamePage/GameInventory';
 import Wishlist from './components/Wishlist';
 import RewardsPage from './components/RewardsPage';
 import UploadGame from './components/UploadGame';
 import UploadWebGame from './components/UploadGame';
+import { CartProvider } from './contexts/CartContext';
+import TokenStore from './components/TokenStore';
+import LowTokenPrompt from './components/LowTokenPrompt';
 
 function App() {
 
@@ -28,6 +31,26 @@ function App() {
   return (
     <Router>
       <Navbar onCartClick={() => setIsCartOpen(true)} cartCount={cartItems.length} />
+  
+  // cart state moved to CartProvider
+  
+  return (
+    <Router>
+      <CartProvider>
+        <Navbar onCartClick={() => {}} cartCount={0} />
+      
+
+    <div className='pt-[72px]'>
+      <Cart />
+      <LowTokenPrompt />
+      <Routes>
+        <Route path="/play-impossible" element={<GameIframe/>} />
+        <Route path="/*" element={<IframeWrapper baseUrl="http://localhost:4200" />} />
+
+        <Route 
+          path="/profile" 
+          element={<Profile/>} 
+        />
 
 
       <div className='pt-[72px]'>
@@ -55,6 +78,12 @@ function App() {
             path="/CommunityHub"
             element={<CommunityHub />}
           />
+        <Route 
+          path="/games/:id" 
+          element={<GameProfile/>} 
+        />
+
+        {/* Inventory removed: games are free & available on Dashboard */}
 
           <Route
             path="/CommunityThreads"
@@ -89,6 +118,20 @@ function App() {
 
         </Routes>
       </div>
+        <Route
+          path="/BuyTokens"
+          element={<TokenStore />}
+        />
+
+        <Route 
+          path="/UploadGame" 
+          element={<UploadWebGame/>} 
+        />
+
+
+      </Routes>
+    </div>
+    </CartProvider>
     </Router>
   );
 }

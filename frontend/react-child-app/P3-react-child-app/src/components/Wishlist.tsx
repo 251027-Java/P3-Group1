@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { userAPI } from '../utils/userApi';
 
 const Wishlist = () => {
   const [wishlist, setWishlist] = useState([
@@ -61,20 +62,18 @@ const Wishlist = () => {
 
             {/* Price & Action Section */}
             <div className="flex items-center gap-8 pr-4">
-              <div className="text-right">
-                {item.discount > 0 && (
-                  <p className="text-xs text-gray-600 line-through font-mono">
-                    ${item.price.toFixed(2)}
-                  </p>
-                )}
-                <p className="text-xl font-black font-mono">
-                  ${(item.price * (1 - item.discount / 100)).toFixed(2)}
-                </p>
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <button className="px-6 py-2 bg-[#822C2C] hover:bg-[#a13737] text-[10px] font-black uppercase tracking-widest rounded-sm transition-all whitespace-nowrap">
-                  Add to Cart
+              <div className="flex flex-col gap-2 items-end">
+                <button onClick={async () => {
+                  const user = userAPI.currentUser;
+                  if(!user || !user.id){ alert('Please sign in to play.'); return; }
+                  try{
+                    const balance = await userAPI.getBalance(user.id);
+                    if(balance < 10){ alert('Not enough tokens. Purchase tokens to continue.'); return; }
+                    const res = await userAPI.createTransaction(user.id, -10, `PLAY: ${item.title}`);
+                    alert('Starting play — 10 tokens deducted. New balance: ' + res.balance);
+                  } catch(e){ console.error(e); alert('Action failed.'); }
+                }} className="px-6 py-2 bg-[#822C2C] hover:bg-[#a13737] text-[10px] font-black uppercase tracking-widest rounded-sm transition-all whitespace-nowrap">
+                  Play (10 tokens)
                 </button>
                 <button className="text-[9px] font-bold text-gray-600 hover:text-white uppercase tracking-tighter text-center">
                   Remove
