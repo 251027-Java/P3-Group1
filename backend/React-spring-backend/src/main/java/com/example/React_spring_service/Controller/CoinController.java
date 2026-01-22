@@ -2,6 +2,7 @@ package com.example.React_spring_service.Controller;
 
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -16,6 +17,7 @@ import com.example.React_spring_service.Entities.CoinTransaction;
 import com.example.React_spring_service.Entities.User;
 import com.example.React_spring_service.Repositories.CoinTransactionRepository;
 import com.example.React_spring_service.Repositories.UserRepository;
+import com.example.React_spring_service.Services.UserProducerService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -27,6 +29,7 @@ public class CoinController {
 
     private final UserRepository userRepository;
     private final CoinTransactionRepository transactionRepository;
+    private final UserProducerService userProducerService;
 
     @GetMapping("/{userId}/balance")
     public ResponseEntity<Long> getBalance(@PathVariable Long userId) {
@@ -67,6 +70,45 @@ public class CoinController {
         // return new balance
         List<CoinTransaction> txs = transactionRepository.findByUserIdOrderByTimestampDesc(userId);
         long sum = txs.stream().mapToLong(t -> t.getAmount()).sum();
+
+        // Send Kafka notifications for specific events
+        String reason = req.reason == null ? "MANUAL" : req.reason;
+        
+        // Notification for game played
+        if (reason.equals("PLAY_DEDUCT") || reason.startsWith("PLAY:")) {
+            Map<String, Object> metadata = new HashMap<>();
+            metadata.put("transactionId", saved.getId());
+            metadata.put("amount", req.amount);
+            metadata.put("reason", reason);
+            metadata.put("newBalance", sum);
+            userProducerService.sendNotification(
+                userId,
+                "GAME_PLAYED",
+                String.format("User %s played a game. %d tokens deducted. New balance: %d", 
+                    user.getDisplayName() != null ? user.getDisplayName() : "User", 
+                    Math.abs(req.amount), 
+                    sum),
+                metadata
+            );
+        }
+        
+        // Notification for token purchase
+        if (reason.startsWith("PURCHASE_TOKENS")) {
+            Map<String, Object> metadata = new HashMap<>();
+            metadata.put("transactionId", saved.getId());
+            metadata.put("amount", req.amount);
+            metadata.put("reason", reason);
+            metadata.put("newBalance", sum);
+            userProducerService.sendNotification(
+                userId,
+                "TOKENS_PURCHASED",
+                String.format("User %s purchased %d tokens. New balance: %d", 
+                    user.getDisplayName() != null ? user.getDisplayName() : "User", 
+                    req.amount, 
+                    sum),
+                metadata
+            );
+        }
 
         return ResponseEntity.ok(Map.of("transaction", saved, "balance", sum));
     }
