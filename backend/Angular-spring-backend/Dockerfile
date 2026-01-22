@@ -1,27 +1,20 @@
-# --- STAGE 1: Build the Application ---
-FROM maven:3.9.6-eclipse-temurin-21 AS build
+# Use Maven + JDK image for dev
+FROM maven:3.9.6-eclipse-temurin-21
+
+# Set working directory
 WORKDIR /app
 
-# Copy only the pom.xml first to cache dependencies (saves time on rebuilds)
+# Copy only pom.xml first for dependency caching
 COPY pom.xml .
+
+# Pre-download dependencies
 RUN mvn dependency:go-offline
 
-# Copy the source code and build the JAR
+# Copy the source code
 COPY src ./src
-RUN mvn clean package -DskipTests
 
-# --- STAGE 2: Run the Application ---
-FROM eclipse-temurin:21-jre-alpine
-WORKDIR /app
-
-# Install curl for healthcheck
-RUN apk add --no-cache curl
-
-# Copy the JAR from the build stage
-# Note: Ensure the 'target' folder name matches your build output
-COPY --from=build /app/target/*.jar app.jar
-
+# Expose Spring Boot port
 EXPOSE 8080
 
-# Run with optimized memory settings for container environments
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Command to run the app in dev mode
+CMD ["mvn", "spring-boot:run"]
