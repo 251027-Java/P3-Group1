@@ -15,10 +15,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
+
 @RestController
 @RequestMapping("/api/games")
 @RequiredArgsConstructor
 // @CrossOrigin(origins = "*")
+@Slf4j
 public class GameController {
 
     private final GameRepository gameRepository;
@@ -31,6 +34,7 @@ public class GameController {
      */
     @GetMapping
     public ResponseEntity<List<Game>> getAllGames() {
+        log.info("getting all games");
         List<Game> games = gameRepository.findAll();
         return ResponseEntity.ok(games);
     }
@@ -41,6 +45,7 @@ public class GameController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<Game> getGameById(@PathVariable Long id) {
+        log.info("getting game by id: " + id);
         return gameRepository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -54,7 +59,9 @@ public class GameController {
     @GetMapping("/{id}/reviews")
     public ResponseEntity<List<Review>> getReviewsByGameId(@PathVariable Long id) {
         // Verify game exists
+        log.info("getting reviews for game id: " + id);
         if (!gameRepository.existsById(id)) {
+            log.debug("reviews requested for non-existent game id: " + id);
             return ResponseEntity.notFound().build();
         }
         List<Review> reviews = reviewRepository.findByGameIdOrderByCreatedAtDesc(id);
@@ -78,6 +85,8 @@ public class GameController {
             @PathVariable Long id,
             @RequestBody ReviewRequest request,
             @RequestHeader(value = "X-User-Id", required = false) Long userId) {
+
+        log.info("Creating review for game ID: " + id + " by user ID: " + userId);
 
         // Validate user ID header (simulates authentication)
         if (userId == null) {
