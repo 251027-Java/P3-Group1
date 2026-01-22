@@ -115,7 +115,7 @@ services:
       SPRING_DATASOURCE_USERNAME: user
       SPRING_DATASOURCE_PASSWORD: password
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      EUREKA_URI: http://eureka-server:8761/eureka
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
     volumes:
       - react_service_logs:/var/log/react-service
       - ./backend/React-spring-backend:/app   # <-- mount source for hot reload
@@ -144,7 +144,7 @@ services:
       SPRING_DATASOURCE_USERNAME: user
       SPRING_DATASOURCE_PASSWORD: password
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      EUREKA_URI: http://eureka-server:8761/eureka
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
     volumes:
       - angular_service_logs:/var/log/angular-service
       - ./backend/Angular-spring-backend:/app   # <-- mount source for hot reload
