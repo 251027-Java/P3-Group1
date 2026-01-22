@@ -17,4 +17,8 @@ COPY src ./src
 EXPOSE 8080
 
 # Command to run the app in dev mode
+<<<<<<< HEAD
 CMD ["mvn", "spring-boot:run"]
+=======
+CMD ["mvn", "spring-boot:run"]
+>>>>>>> 6a4c4fbeb03105b02781ff1d1dde318d359f3cc7

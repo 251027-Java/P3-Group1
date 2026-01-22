@@ -44,6 +44,9 @@ public class DataSeeder implements CommandLineRunner {
         @Override
         @Transactional
         public void run(String... args) throws Exception {
+                boolean skipSeeding = true;
+                if (skipSeeding) return;
+
                 if (userRepository.count() > 0)
                         return; // Prevent duplicate seeding
 
