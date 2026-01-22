@@ -91,6 +91,16 @@ services:
         condition: service_healthy
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+      # --- GATEWAY ROUTES ADDED HERE ---
+      SPRING_CLOUD_GATEWAY_ROUTES_0_ID: react-backend-route
+      SPRING_CLOUD_GATEWAY_ROUTES_0_URI: lb://REACT-SPRING-SERVICE
+      SPRING_CLOUD_GATEWAY_ROUTES_0_PREDICATES_0: Path=/api/react/**
+      SPRING_CLOUD_GATEWAY_ROUTES_0_FILTERS_0: RewritePath=/api/react/(?<segment>.*), /$$\{segment}
+
+      SPRING_CLOUD_GATEWAY_ROUTES_1_ID: angular-backend-route
+      SPRING_CLOUD_GATEWAY_ROUTES_1_URI: lb://ANGULAR-SPRING-SERVICE
+      SPRING_CLOUD_GATEWAY_ROUTES_1_PREDICATES_0: Path=/api/angular/**
+      SPRING_CLOUD_GATEWAY_ROUTES_1_FILTERS_0: RewritePath=/api/angular/(?<segment>.*), /$$\{segment}
     healthcheck:
       test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health" ]
       interval: 10s
