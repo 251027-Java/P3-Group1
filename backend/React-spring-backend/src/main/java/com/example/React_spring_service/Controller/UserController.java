@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/users")
 @RequiredArgsConstructor
 // @CrossOrigin(origins = "*")
 public class UserController {
@@ -22,7 +22,8 @@ public class UserController {
     // ==================== USER PROFILE ENDPOINTS ====================
 
     /**
-     * GET /api/users/{id}
+     * GET /api/react/users/{id} (through gateway)
+     * Direct: GET /users/{id}
      * Get user profile by ID
      */
     @GetMapping("/{id}")
@@ -42,7 +43,7 @@ public class UserController {
     }
 
     /**
-     * GET /api/users/displayName/{displayName}
+     * GET /api/react/users/displayName/{displayName} (through gateway)
      * Get user by display name
      */
     @GetMapping("/displayName/{displayName}")
@@ -62,7 +63,7 @@ public class UserController {
     }
 
     /**
-     * PUT /api/users/{id}/profile
+     * PUT /api/react/users/{id}/profile (through gateway)
      * Update user profile
      * Request body: {displayName, displayImage, level, canSell}
      */
@@ -92,7 +93,7 @@ public class UserController {
     }
 
     /**
-     * GET /api/users/{id}/statistics
+     * GET /api/react/users/{id}/statistics (through gateway)
      * Get user statistics
      */
     @GetMapping("/{id}/statistics")
@@ -109,7 +110,7 @@ public class UserController {
     // ==================== FRIENDS ENDPOINTS ====================
 
     /**
-     * GET /api/users/{id}/friends
+     * GET /api/react/users/{id}/friends (through gateway)
      * Get user's friends
      */
     @GetMapping("/{id}/friends")
@@ -124,7 +125,7 @@ public class UserController {
     }
 
     /**
-     * POST /api/users/{id}/friends/{friendId}
+     * POST /api/react/users/{id}/friends/{friendId} (through gateway)
      * Add a friend
      */
     @PostMapping("/{id}/friends/{friendId}")
@@ -143,7 +144,7 @@ public class UserController {
     }
 
     /**
-     * DELETE /api/users/{id}/friends/{friendId}
+     * DELETE /api/react/users/{id}/friends/{friendId} (through gateway)
      * Remove a friend
      */
     @DeleteMapping("/{id}/friends/{friendId}")
@@ -164,7 +165,7 @@ public class UserController {
     // ==================== GAMES LIBRARY ENDPOINTS ====================
 
     /**
-     * GET /api/users/{id}/library
+     * GET /api/react/users/{id}/library (through gateway)
      * Get user's games library (IDs only)
      */
     @GetMapping("/{id}/library")
@@ -179,7 +180,7 @@ public class UserController {
     }
 
     /**
-     * GET /api/users/{id}/library/full
+     * GET /api/react/users/{id}/library/full (through gateway)
      * Get user's games library (full Game objects)
      */
     @GetMapping("/{id}/library/full")
@@ -194,7 +195,7 @@ public class UserController {
     }
 
     /**
-     * POST /api/users/{id}/library/{gameId}
+     * POST /api/react/users/{id}/library/{gameId} (through gateway)
      * Add game to library
      */
     @PostMapping("/{id}/library/{gameId}")
@@ -213,7 +214,7 @@ public class UserController {
     }
 
     /**
-     * DELETE /api/users/{id}/library/{gameId}
+     * DELETE /api/react/users/{id}/library/{gameId} (through gateway)
      * Remove game from library
      */
     @DeleteMapping("/{id}/library/{gameId}")
@@ -234,7 +235,7 @@ public class UserController {
     // ==================== WISHLIST ENDPOINTS ====================
 
     /**
-     * GET /api/users/{id}/wishlist
+     * GET /api/react/users/{id}/wishlist (through gateway)
      * Get user's wishlist (IDs only)
      */
     @GetMapping("/{id}/wishlist")
@@ -249,7 +250,7 @@ public class UserController {
     }
 
     /**
-     * GET /api/users/{id}/wishlist/full
+     * GET /api/react/users/{id}/wishlist/full (through gateway)
      * Get user's wishlist (full Game objects)
      */
     @GetMapping("/{id}/wishlist/full")
@@ -264,7 +265,7 @@ public class UserController {
     }
 
     /**
-     * POST /api/users/{id}/wishlist/{gameId}
+     * POST /api/react/users/{id}/wishlist/{gameId} (through gateway)
      * Add game to wishlist
      */
     @PostMapping("/{id}/wishlist/{gameId}")
@@ -283,7 +284,7 @@ public class UserController {
     }
 
     /**
-     * DELETE /api/users/{id}/wishlist/{gameId}
+     * DELETE /api/react/users/{id}/wishlist/{gameId} (through gateway)
      * Remove game from wishlist
      */
     @DeleteMapping("/{id}/wishlist/{gameId}")
@@ -304,7 +305,7 @@ public class UserController {
     // ==================== REWARDS ENDPOINTS ====================
 
     /**
-     * GET /api/users/{id}/rewards
+     * GET /api/react/users/{id}/rewards (through gateway)
      * Get user's rewards
      */
     @GetMapping("/{id}/rewards")
@@ -319,7 +320,7 @@ public class UserController {
     }
 
     /**
-     * POST /api/users/{id}/rewards/{rewardId}
+     * POST /api/react/users/{id}/rewards/{rewardId} (through gateway)
      * Add reward to user
      */
     @PostMapping("/{id}/rewards/{rewardId}")
@@ -338,7 +339,7 @@ public class UserController {
     }
 
     /**
-     * DELETE /api/users/{id}/rewards/{rewardId}
+     * DELETE /api/react/users/{id}/rewards/{rewardId} (through gateway)
      * Remove reward from user
      */
     @DeleteMapping("/{id}/rewards/{rewardId}")
@@ -359,7 +360,7 @@ public class UserController {
     // ==================== NOTIFICATIONS ENDPOINTS ====================
 
     /**
-     * GET /api/users/{id}/notifications
+     * GET /api/react/users/{id}/notifications (through gateway)
      * Get user's notifications
      */
     @GetMapping("/{id}/notifications")
@@ -374,7 +375,7 @@ public class UserController {
     }
 
     /**
-     * POST /api/users/{id}/notifications
+     * POST /api/react/users/{id}/notifications (through gateway)
      * Add notification to user
      * Request body: notification object as Map
      */
@@ -394,7 +395,7 @@ public class UserController {
     }
 
     /**
-     * DELETE /api/users/{id}/notifications
+     * DELETE /api/react/users/{id}/notifications (through gateway)
      * Clear all notifications
      */
     @DeleteMapping("/{id}/notifications")
@@ -410,7 +411,7 @@ public class UserController {
     }
 
     /**
-     * DELETE /api/users/{id}/notifications/{index}
+     * DELETE /api/react/users/{id}/notifications/{index} (through gateway)
      * Remove specific notification by index
      */
     @DeleteMapping("/{id}/notifications/{index}")
@@ -431,7 +432,7 @@ public class UserController {
     // ==================== COMMUNITY POSTS ENDPOINTS ====================
 
     /**
-     * GET /api/users/{id}/posts
+     * GET /api/react/users/{id}/posts (through gateway)
      * Get user's community posts
      */
     @GetMapping("/{id}/posts")
