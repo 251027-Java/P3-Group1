@@ -1,7 +1,6 @@
 # Docker Compose for Dev Environment (React + Angular Backends and Frontends)
 # Health checks and volumes preserved
 
-version: '3.8'
 services:
   # -----------------------
   # POSTGRES
