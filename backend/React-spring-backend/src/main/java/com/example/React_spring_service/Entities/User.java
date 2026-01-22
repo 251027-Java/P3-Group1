@@ -40,6 +40,9 @@ public class User {
 
     private boolean canSell;
 
+    @Builder.Default
+    private boolean enabled = true;
+
     // --- RELATIONAL (MANY-TO-MANY) ---
     @ManyToMany
     @JoinTable(name = "user_rewards", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "reward_id"))

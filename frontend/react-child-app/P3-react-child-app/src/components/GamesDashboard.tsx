@@ -16,7 +16,7 @@ const GamesDashboard = () => {
 
   React.useEffect(() => {
     // 1. Fetch Games with Error Handling
-    fetch('http://localhost:8082/api/games')
+    fetch('http://localhost:8081/api/games')
       .then(res => {
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         return res.json();

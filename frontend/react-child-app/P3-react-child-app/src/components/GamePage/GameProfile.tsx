@@ -1,30 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { getGameById, getReviewsByGameId, createReview } from '../../api/games';
 import type { Game, Review } from '../../types';
 import { HttpError } from '../../api/http';
 
 const GameProfile = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('About');
-  
+
   // State for game and reviews
   const [game, setGame] = useState<Game | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Review form state
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewContent, setReviewContent] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  
+
   const getCurrentUserId = (): string | null => {
-    return localStorage.getItem('userId') || '1'; 
+    return localStorage.getItem('userId') || '1';
   };
-  
+
   const hasUserReviewed = (): boolean => {
     const userId = getCurrentUserId();
     if (!userId) return false;
@@ -34,17 +35,17 @@ const GameProfile = () => {
 
   useEffect(() => {
     if (!id) return;
-    
+
     const loadData = async () => {
       setLoading(true);
       setError(null);
-      
+
       try {
         const [gameData, reviewsData] = await Promise.all([
           getGameById(id),
           getReviewsByGameId(id)
         ]);
-        
+
         setGame(gameData);
         setReviews(reviewsData);
       } catch (err) {
@@ -61,7 +62,7 @@ const GameProfile = () => {
         setLoading(false);
       }
     };
-    
+
     loadData();
   }, [id]);
 
@@ -76,10 +77,10 @@ const GameProfile = () => {
       setSubmitError('You have already reviewed this game');
       return;
     }
-    
+
     setSubmitting(true);
     setSubmitError(null);
-    
+
     try {
       const newReview = await createReview(
         id!,
@@ -148,11 +149,11 @@ const GameProfile = () => {
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white">
       <div className="relative h-[60vh] w-full overflow-hidden">
-        <div 
+        <div
           className="absolute inset-0 bg-cover bg-center scale-110 blur-xl opacity-30"
           style={{
-            backgroundImage: game.backgroundImage 
-              ? `url(${game.backgroundImage})` 
+            backgroundImage: game.backgroundImage
+              ? `url(${game.backgroundImage})`
               : "url('https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=2070')"
           }}
         />
@@ -191,7 +192,7 @@ const GameProfile = () => {
                   </span>
                 ))}
               </div>
-              
+
               <div className="flex items-center gap-4 bg-white/5 p-4 rounded-xl border border-white/10 backdrop-blur-md w-fit">
                 <div className="pr-4 border-r border-white/10">
                   <p className="text-[10px] text-gray-500 uppercase font-bold">Price</p>
@@ -206,7 +207,14 @@ const GameProfile = () => {
                     <p className="text-xl font-mono text-[#822C2C]">${(game.price || 0).toFixed(2)}</p>
                   )}
                 </div>
-                <button className="px-8 py-3 bg-[#822C2C] hover:bg-[#a13737] font-bold rounded text-sm transition-all uppercase tracking-widest shadow-lg shadow-red-900/40">
+                <button
+                  onClick={() => {
+                    if (game.name === 'Bubble Trouble') navigate('/games/bubble-trouble');
+                    else if (game.name === 'Flappy Bird') navigate('/games/flappy-bird');
+                    else if (game.name === 'The Impossible - Mini Clone') navigate('/play-impossible');
+                    else alert('This game is not playable in the browser yet.');
+                  }}
+                  className="px-8 py-3 bg-[#822C2C] hover:bg-[#a13737] font-bold rounded text-sm transition-all uppercase tracking-widest shadow-lg shadow-red-900/40">
                   Play (10 tokens)
                 </button>
                 <button className="p-3 bg-white/10 hover:bg-white/20 rounded border border-white/10">
@@ -222,12 +230,11 @@ const GameProfile = () => {
         <div className="col-span-12 lg:col-span-8">
           <nav className="flex gap-8 border-b border-white/10 mb-8">
             {['About', 'System Requirements', 'Updates', 'Reviews'].map(tab => (
-              <button 
+              <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all ${
-                  activeTab === tab ? 'border-b-2 border-[#822C2C] text-white' : 'text-gray-500 hover:text-gray-300'
-                }`}
+                className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all ${activeTab === tab ? 'border-b-2 border-[#822C2C] text-white' : 'text-gray-500 hover:text-gray-300'
+                  }`}
               >
                 {tab}
               </button>
@@ -238,7 +245,7 @@ const GameProfile = () => {
             <div className="prose prose-invert max-w-none">
               <h3 className="text-[#822C2C] uppercase italic">About This Game</h3>
               <p className="text-gray-400 leading-relaxed text-lg">
-                {game.name} - Experience an immersive gaming adventure. 
+                {game.name} - Experience an immersive gaming adventure.
                 {game.developer && ` Developed by ${game.developer}`}
                 {game.publisher && ` and published by ${game.publisher}`}.
               </p>
@@ -268,7 +275,7 @@ const GameProfile = () => {
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-[#822C2C] uppercase italic">User Reviews</h3>
                 {!hasUserReviewed() && !showReviewForm && (
-                  <button 
+                  <button
                     onClick={() => setShowReviewForm(true)}
                     className="px-4 py-2 bg-[#822C2C] hover:bg-[#a13737] font-bold text-sm rounded transition-all uppercase"
                   >

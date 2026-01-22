@@ -62,6 +62,7 @@ public class DataSeeder implements CommandLineRunner {
                                 .displayImage("/cdn/pfp/dev1.jpg")
                                 .level(UserLevel.DEVELOPER)
                                 .canSell(true)
+                                .enabled(true)
                                 .build();
 
                 User player = User.builder()
@@ -71,33 +72,10 @@ public class DataSeeder implements CommandLineRunner {
                                 .canSell(false)
                                 .gamesInLibrary(new ArrayList<>(List.of(1L))) // Pre-owning game 1
                                 .notifications(List.of(Map.of("title", "Welcome to P3!", "read", false)))
+                                .enabled(true)
                                 .build();
 
                 userRepository.saveAll(List.of(dev, player));
-
-                // 3. Create a Game
-                Game webGame = Game.builder()
-                                .name("Cyber Protocol")
-                                .developer("Neon_Architect")
-                                .publisher("Fleet Games")
-                                .dateReleased(LocalDate.now())
-                                // Games are free to play; token economy is used for plays
-                                .tags(List.of("Cyberpunk", "WebGL", "Hardcore"))
-                                .developerLogs(List.of(Map.of("title", "Version 1.0 Live", "description",
-                                                "Initial web build launch")))
-                                .rewards(List.of(Map.of("id", 1, "title", "Neon Skin", "cost", 100)))
-                                .build();
-                gameRepository.save(webGame);
-
-                // 4. Create a Review
-                Review review = Review.builder()
-                                .ratingNumber(5)
-                                .content("Best browser game I've played this year!")
-                                .likes(12)
-                                .user(player)
-                                .game(webGame)
-                                .build();
-                reviewRepository.save(review);
 
                 // 5. Create Coin Transactions (The Ledger)
                 CoinTransaction tx1 = CoinTransaction.builder()

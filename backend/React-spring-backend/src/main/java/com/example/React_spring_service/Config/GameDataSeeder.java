@@ -52,5 +52,6 @@ public class GameDataSeeder implements CommandLineRunner {
             gameRepository.save(flappyBird);
             System.out.println("✅ Flappy Bird seeded successfully!");
         }
+
     }
 }
