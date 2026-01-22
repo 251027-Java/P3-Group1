@@ -37,5 +37,6 @@ public class User {
 
     // Auth specific fields
     // branch testing
+    @Builder.Default
     private boolean enabled = true;
 }
