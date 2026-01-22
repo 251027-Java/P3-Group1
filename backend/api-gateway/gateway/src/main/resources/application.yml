@@ -7,7 +7,22 @@ spring:
 
   cloud:
     gateway:
-      routes: # add a route for each new microservice
+      globalcors:
+        add-to-suffix-path: true
+        cors-configurations:
+          '[/**]':
+            # CHANGE THIS LINE: use allowedOriginPatterns instead of allowedOrigins
+            allowedOriginPatterns: "*" 
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true
+
+      routes:
         - id: angular-service
           uri: lb://ANGULAR-SPRING-SERVICE
           predicates:
@@ -18,7 +33,9 @@ spring:
         - id: react-service
           uri: lb://REACT-SPRING-SERVICE
           predicates:
-            - Path=/api/**
+            - Path=/api/react/**
+          filters:
+            - RewritePath=/api/react/(?<segment>.*), /${segment}
 
 eureka:
   client:
@@ -26,7 +43,6 @@ eureka:
       defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://eureka-server:8761/eureka}
     register-with-eureka: true
     fetch-registry: true
-
   instance:
     prefer-ip-address: true
 

@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
+// @CrossOrigin(origins = "*")
 @Slf4j
 public class CoinController {
 
@@ -47,7 +47,7 @@ public class CoinController {
     @PostMapping("/{userId}/transactions")
     public ResponseEntity<?> createTransaction(@PathVariable Long userId, @RequestBody TransactionRequest req) {
         log.info("Creating transaction for user ID: " + userId + " with amount: " + req.amount);
-        
+
         var userOpt = userRepository.findById(userId);
         if (userOpt.isEmpty()) {
             log.debug("User with ID " + userId + " not found.");
