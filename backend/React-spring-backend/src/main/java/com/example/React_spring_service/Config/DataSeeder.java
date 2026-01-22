@@ -2,6 +2,7 @@ package com.example.React_spring_service.Config;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -44,8 +45,14 @@ public class DataSeeder implements CommandLineRunner {
         @Override
         @Transactional
         public void run(String... args) throws Exception {
-                if (userRepository.count() > 0)
-                        return; // Prevent duplicate seeding
+                boolean skipSeeding = false;
+                if (skipSeeding)
+                        return;
+
+                if (userRepository.count() > 0) {
+                        System.out.println(">>> DATABASE ALREADY CONTAINS DATA, SKIPPING SEEDING <<<");
+                        return;
+                }
 
                 // 1. Create Rewards (Shop Items)
                 Reward discountReward = Reward.builder()
@@ -56,12 +63,14 @@ public class DataSeeder implements CommandLineRunner {
                                 .build();
                 rewardRepository.save(discountReward);
 
-                // 2. Create Users (A Dev and a Player)
+                // 2. Create Users
+                // NOTE: We initialize 'friends' as a new HashSet to avoid NullPointerException
                 User dev = User.builder()
                                 .displayName("Neon_Architect")
                                 .displayImage("/cdn/pfp/dev1.jpg")
                                 .level(UserLevel.DEVELOPER)
                                 .canSell(true)
+                                .friends(new HashSet<>())
                                 .build();
 
                 User player = User.builder()
@@ -69,16 +78,19 @@ public class DataSeeder implements CommandLineRunner {
                                 .displayImage("/cdn/pfp/player1.jpg")
                                 .level(UserLevel.USER)
                                 .canSell(false)
-                                .gamesInLibrary(new ArrayList<>(List.of(1L))) // Pre-owning game 1
+                                .friends(new HashSet<>())
+                                .gamesInLibrary(new ArrayList<>(List.of(1L)))
                                 .notifications(List.of(Map.of("title", "Welcome to P3!", "read", false)))
                                 .build();
 
-                // Save users first
+                // PERSIST users first to generate IDs before creating relationships
                 userRepository.saveAll(List.of(dev, player));
 
                 // Create friendship between dev and player
                 dev.getFriends().add(player);
                 player.getFriends().add(dev);
+
+                // Save again to update the join table
                 userRepository.saveAll(List.of(dev, player));
 
                 // 3. Create a Game
@@ -87,7 +99,6 @@ public class DataSeeder implements CommandLineRunner {
                                 .developer("Neon_Architect")
                                 .publisher("Fleet Games")
                                 .dateReleased(LocalDate.now())
-                                // Games are free to play; token economy is used for plays
                                 .tags(List.of("Cyberpunk", "WebGL", "Hardcore"))
                                 .developerLogs(List.of(Map.of("title", "Version 1.0 Live", "description",
                                                 "Initial web build launch")))
@@ -105,7 +116,7 @@ public class DataSeeder implements CommandLineRunner {
                                 .build();
                 reviewRepository.save(review);
 
-                // 5. Create Coin Transactions (The Ledger)
+                // 5. Create Coin Transactions
                 CoinTransaction tx1 = CoinTransaction.builder()
                                 .user(player)
                                 .amount(1000L)

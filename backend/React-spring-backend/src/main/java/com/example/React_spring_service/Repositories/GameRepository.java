@@ -19,4 +19,7 @@ public interface GameRepository extends JpaRepository<Game, Long> {
 
     // // Find games containing a specific tag in the JSONB column
     // List<Game> findByTagsContaining(String tag);
+
+    // Find game by name
+    java.util.Optional<Game> findByName(String name);
 }

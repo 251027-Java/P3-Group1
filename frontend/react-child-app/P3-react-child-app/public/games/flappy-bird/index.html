@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flappy Bird</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #111827;
+            font-family: system-ui, -apple-system, sans-serif;
+            overflow: hidden;
+        }
+
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        .header {
+            margin-bottom: 1rem;
+            color: white;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 0 0 0.5rem 0;
+        }
+
+        .stats {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .canvas-wrapper {
+            position: relative;
+        }
+
+        .game-canvas {
+            border: 4px solid #3b82f6;
+            background-color: #70c5ce;
+            /* Sky blue background */
+        }
+
+        .overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(0, 0, 0, 0.75);
+        }
+
+        .modal {
+            text-align: center;
+            color: white;
+            background: rgba(31, 41, 55, 0.9);
+            padding: 2rem;
+            border-radius: 1rem;
+        }
+
+        .modal h2 {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .modal p {
+            margin-bottom: 0.5rem;
+        }
+
+        .score {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 2rem;
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1.25rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+
+        .btn:hover {
+            background-color: #1d4ed8;
+        }
+
+        .instructions {
+            margin-top: 1rem;
+            color: white;
+            text-align: center;
+            max-width: 28rem;
+            font-size: 0.875rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1>Flappy Bird</h1>
+            <div class="stats">
+                <span>Score: <span id="score">0</span></span>
+                <span>High Score: <span id="highScore">0</span></span>
+            </div>
+        </div>
+
+        <div class="canvas-wrapper">
+            <canvas id="gameCanvas" width="400" height="600" class="game-canvas"></canvas>
+
+            <div id="startOverlay" class="overlay">
+                <div class="modal">
+                    <h2>Flappy Bird</h2>
+                    <p>Press SPACE or Click to Jump</p>
+                    <p>Avoid the pipes!</p>
+                    <button onclick="startGame()" class="btn">Start Game</button>
+                </div>
+            </div>
+
+            <div id="gameOverOverlay" class="overlay hidden">
+                <div class="modal">
+                    <h2>Game Over!</h2>
+                    <p class="score">Score: <span id="finalScore">0</span></p>
+                    <button onclick="startGame()" class="btn">Play Again</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <p>Tap Spacebar or Click to keep the bird in the air.</p>
+        </div>
+    </div>
+
+    <script src="flappy-bird-game.js"></script>
+</body>
+
+</html>

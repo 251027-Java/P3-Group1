@@ -60,60 +60,58 @@ cd backend/React-spring-backend
 
 ### 2. Test the Endpoints
 
-**Get all users (from GlobalController):**
+**Through API Gateway (port 8080):**
 ```bash
-curl http://localhost:8080/api/users
+# Get all users (from GlobalController)
+curl http://localhost:8080/api/react
+
+# Get specific user
+curl http://localhost:8080/api/react/users/1
+
+# Get user statistics
+curl http://localhost:8080/api/react/users/1/statistics
+
+# Get user's games library
+curl http://localhost:8080/api/react/users/1/library/full
+
+# Get user's friends
+curl http://localhost:8080/api/react/users/1/friends
 ```
 
-**Get specific user:**
+**Direct to React Backend (port 8081, for development):**
 ```bash
-curl http://localhost:8080/api/users/1
-```
-
-**Get user statistics:**
-```bash
-curl http://localhost:8080/api/users/1/statistics
-```
-
-**Get user's games library:**
-```bash
-curl http://localhost:8080/api/users/1/library/full
-```
-
-**Get user's friends:**
-```bash
-curl http://localhost:8080/api/users/1/friends
+curl http://localhost:8081/users/1
 ```
 
 ---
 
 ## 📡 Available Endpoints Summary
 
-| Category | Endpoint | Method | Description |
+| Category | Endpoint (via Gateway) | Method | Description |
 |----------|----------|--------|-------------|
-| **Profile** | `/api/users/{id}` | GET | Get user profile |
-| | `/api/users/displayName/{name}` | GET | Get user by name |
-| | `/api/users/{id}/profile` | PUT | Update profile |
-| | `/api/users/{id}/statistics` | GET | Get user stats |
-| **Friends** | `/api/users/{id}/friends` | GET | Get friends |
-| | `/api/users/{id}/friends/{friendId}` | POST | Add friend |
-| | `/api/users/{id}/friends/{friendId}` | DELETE | Remove friend |
-| **Library** | `/api/users/{id}/library` | GET | Get library (IDs) |
-| | `/api/users/{id}/library/full` | GET | Get library (full objects) |
-| | `/api/users/{id}/library/{gameId}` | POST | Add to library |
-| | `/api/users/{id}/library/{gameId}` | DELETE | Remove from library |
-| **Wishlist** | `/api/users/{id}/wishlist` | GET | Get wishlist (IDs) |
-| | `/api/users/{id}/wishlist/full` | GET | Get wishlist (full objects) |
-| | `/api/users/{id}/wishlist/{gameId}` | POST | Add to wishlist |
-| | `/api/users/{id}/wishlist/{gameId}` | DELETE | Remove from wishlist |
-| **Rewards** | `/api/users/{id}/rewards` | GET | Get rewards |
-| | `/api/users/{id}/rewards/{rewardId}` | POST | Add reward |
-| | `/api/users/{id}/rewards/{rewardId}` | DELETE | Remove reward |
-| **Notifications** | `/api/users/{id}/notifications` | GET | Get notifications |
-| | `/api/users/{id}/notifications` | POST | Add notification |
-| | `/api/users/{id}/notifications` | DELETE | Clear all |
-| | `/api/users/{id}/notifications/{index}` | DELETE | Remove one |
-| **Posts** | `/api/users/{id}/posts` | GET | Get user's posts |
+| **Profile** | `/api/react/users/{id}` | GET | Get user profile |
+| | `/api/react/users/displayName/{name}` | GET | Get user by name |
+| | `/api/react/users/{id}/profile` | PUT | Update profile |
+| | `/api/react/users/{id}/statistics` | GET | Get user stats |
+| **Friends** | `/api/react/users/{id}/friends` | GET | Get friends |
+| | `/api/react/users/{id}/friends/{friendId}` | POST | Add friend |
+| | `/api/react/users/{id}/friends/{friendId}` | DELETE | Remove friend |
+| **Library** | `/api/react/users/{id}/library` | GET | Get library (IDs) |
+| | `/api/react/users/{id}/library/full` | GET | Get library (full objects) |
+| | `/api/react/users/{id}/library/{gameId}` | POST | Add to library |
+| | `/api/react/users/{id}/library/{gameId}` | DELETE | Remove from library |
+| **Wishlist** | `/api/react/users/{id}/wishlist` | GET | Get wishlist (IDs) |
+| | `/api/react/users/{id}/wishlist/full` | GET | Get wishlist (full objects) |
+| | `/api/react/users/{id}/wishlist/{gameId}` | POST | Add to wishlist |
+| | `/api/react/users/{id}/wishlist/{gameId}` | DELETE | Remove from wishlist |
+| **Rewards** | `/api/react/users/{id}/rewards` | GET | Get rewards |
+| | `/api/react/users/{id}/rewards/{rewardId}` | POST | Add reward |
+| | `/api/react/users/{id}/rewards/{rewardId}` | DELETE | Remove reward |
+| **Notifications** | `/api/react/users/{id}/notifications` | GET | Get notifications |
+| | `/api/react/users/{id}/notifications` | POST | Add notification |
+| | `/api/react/users/{id}/notifications` | DELETE | Clear all |
+| | `/api/react/users/{id}/notifications/{index}` | DELETE | Remove one |
+| **Posts** | `/api/react/users/{id}/posts` | GET | Get user's posts |
 
 ---
 
@@ -122,8 +120,8 @@ curl http://localhost:8080/api/users/1/friends
 ### Use Case 1: Display User Profile
 
 ```javascript
-// Fetch user data
-const response = await fetch('/api/users/1');
+// Fetch user data (through gateway)
+const response = await fetch('/api/react/users/1');
 const user = await response.json();
 
 // Display in React component
@@ -141,7 +139,7 @@ return (
 
 ```javascript
 // Get full game objects
-const response = await fetch('/api/users/1/library/full');
+const response = await fetch('/api/react/users/1/library/full');
 const games = await response.json();
 
 // Display games
@@ -160,7 +158,7 @@ games.map(game => (
 ```javascript
 // When user purchases a game
 const addToLibrary = async (userId, gameId) => {
-  const response = await fetch(`/api/users/${userId}/library/${gameId}`, {
+  const response = await fetch(`/api/react/users/${userId}/library/${gameId}`, {
     method: 'POST'
   });
   const result = await response.json();
@@ -176,21 +174,21 @@ const addToLibrary = async (userId, gameId) => {
 ```javascript
 // Add to wishlist
 const addToWishlist = async (userId, gameId) => {
-  await fetch(`/api/users/${userId}/wishlist/${gameId}`, {
+  await fetch(`/api/react/users/${userId}/wishlist/${gameId}`, {
     method: 'POST'
   });
 };
 
 // Remove from wishlist
 const removeFromWishlist = async (userId, gameId) => {
-  await fetch(`/api/users/${userId}/wishlist/${gameId}`, {
+  await fetch(`/api/react/users/${userId}/wishlist/${gameId}`, {
     method: 'DELETE'
   });
 };
 
 // Check if in wishlist
 const checkWishlist = async (userId, gameId) => {
-  const response = await fetch(`/api/users/${userId}/wishlist`);
+  const response = await fetch(`/api/react/users/${userId}/wishlist`);
   const wishlist = await response.json();
   return wishlist.includes(gameId);
 };
@@ -199,7 +197,7 @@ const checkWishlist = async (userId, gameId) => {
 ### Use Case 5: Display User Statistics Dashboard
 
 ```javascript
-const response = await fetch('/api/users/1/statistics');
+const response = await fetch('/api/react/users/1/statistics');
 const stats = await response.json();
 
 return (
@@ -222,7 +220,7 @@ return (
 
 ```javascript
 // Check if user owns a game before showing "Play" button
-const userLibrary = await fetch(`/api/users/${userId}/library`).then(r => r.json());
+const userLibrary = await fetch(`/api/react/users/${userId}/library`).then(r => r.json());
 const ownsGame = userLibrary.includes(gameId);
 
 if (ownsGame) {
@@ -236,22 +234,22 @@ if (ownsGame) {
 
 ```javascript
 // Get user info to display with posts
-const user = await fetch(`/api/users/${authorId}`).then(r => r.json());
+const user = await fetch(`/api/react/users/${authorId}`).then(r => r.json());
 
 // Get user's all posts
-const posts = await fetch(`/api/users/${authorId}/posts`).then(r => r.json());
+const posts = await fetch(`/api/react/users/${authorId}/posts`).then(r => r.json());
 ```
 
 ### For Omar (Tokens)
 
 ```javascript
 // Award reward when user purchases tokens
-await fetch(`/api/users/${userId}/rewards/${rewardId}`, {
+await fetch(`/api/react/users/${userId}/rewards/${rewardId}`, {
   method: 'POST'
 });
 
 // Add notification about token purchase
-await fetch(`/api/users/${userId}/notifications`, {
+await fetch(`/api/react/users/${userId}/notifications`, {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
@@ -266,20 +264,20 @@ await fetch(`/api/users/${userId}/notifications`, {
 
 ```javascript
 // Check if game is in user's library
-const library = await fetch(`/api/users/${userId}/library`).then(r => r.json());
+const library = await fetch(`/api/react/users/${userId}/library`).then(r => r.json());
 const ownGame = library.includes(gameId);
 
 // Check if game is in wishlist
-const wishlist = await fetch(`/api/users/${userId}/wishlist`).then(r => r.json());
+const wishlist = await fetch(`/api/react/users/${userId}/wishlist`).then(r => r.json());
 const inWishlist = wishlist.includes(gameId);
 
 // Toggle wishlist
 if (inWishlist) {
   // Remove from wishlist
-  await fetch(`/api/users/${userId}/wishlist/${gameId}`, { method: 'DELETE' });
+  await fetch(`/api/react/users/${userId}/wishlist/${gameId}`, { method: 'DELETE' });
 } else {
   // Add to wishlist
-  await fetch(`/api/users/${userId}/wishlist/${gameId}`, { method: 'POST' });
+  await fetch(`/api/react/users/${userId}/wishlist/${gameId}`, { method: 'POST' });
 }
 ```
 
@@ -287,7 +285,7 @@ if (inWishlist) {
 
 ```javascript
 // After game purchase, add to user's library
-await fetch(`/api/users/${userId}/library/${gameId}`, {
+await fetch(`/api/react/users/${userId}/library/${gameId}`, {
   method: 'POST'
 });
 ```
@@ -308,7 +306,7 @@ export const useUser = (userId: number) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch(`/api/users/${userId}`)
+    fetch(`/api/react/users/${userId}`)
       .then(res => res.json())
       .then(data => {
         setUser(data);
@@ -321,7 +319,7 @@ export const useUser = (userId: number) => {
   }, [userId]);
 
   const updateProfile = async (updates) => {
-    const response = await fetch(`/api/users/${userId}/profile`, {
+    const response = await fetch(`/api/react/users/${userId}/profile`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updates)
@@ -332,11 +330,11 @@ export const useUser = (userId: number) => {
   };
 
   const addGameToLibrary = async (gameId) => {
-    await fetch(`/api/users/${userId}/library/${gameId}`, {
+    await fetch(`/api/react/users/${userId}/library/${gameId}`, {
       method: 'POST'
     });
     // Refresh user data
-    const response = await fetch(`/api/users/${userId}`);
+    const response = await fetch(`/api/react/users/${userId}`);
     const updatedUser = await response.json();
     setUser(updatedUser);
   };
@@ -393,13 +391,13 @@ export const UserProfile: React.FC<{ userId: number }> = ({ userId }) => {
   const [stats, setStats] = useState<any>(null);
 
   useEffect(() => {
-    // Fetch user data
-    fetch(`/api/users/${userId}`)
+    // Fetch user data (through gateway)
+    fetch(`/api/react/users/${userId}`)
       .then(res => res.json())
       .then(setUser);
 
     // Fetch statistics
-    fetch(`/api/users/${userId}/statistics`)
+    fetch(`/api/react/users/${userId}/statistics`)
       .then(res => res.json())
       .then(setStats);
   }, [userId]);

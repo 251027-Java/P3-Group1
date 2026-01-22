@@ -1,0 +1,42 @@
+<div class="game-container">
+  <div class="header">
+    <h1>Bubble Trouble</h1>
+    <div class="stats">
+      <span>Score: {{score}}</span>
+      <span>Level: {{level}}</span>
+      <span>Lives: {{getLives()}}</span>
+    </div>
+  </div>
+  
+  <div class="canvas-wrapper">
+    <canvas 
+      #gameCanvas 
+      [width]="CANVAS_WIDTH" 
+      [height]="CANVAS_HEIGHT"
+      class="game-canvas">
+    </canvas>
+    
+    <div *ngIf="gameState === 'start'" class="overlay">
+      <div class="modal">
+        <h2>Bubble Trouble</h2>
+        <p>Use Arrow Keys to move</p>
+        <p>Press SPACE to shoot (multiple shots allowed!)</p>
+        <button (click)="startGame()" class="btn">Start Game</button>
+      </div>
+    </div>
+    
+    <div *ngIf="gameState === 'gameOver'" class="overlay">
+      <div class="modal">
+        <h2>{{level >= 10 ? 'You Won!' : 'Game Over!'}}</h2>
+        <p class="score">Final Score: {{score}}</p>
+        <p>Level Reached: {{level}}</p>
+        <p *ngIf="level >= 10" class="victory">🎉 Congratulations! All levels completed! 🎉</p>
+        <button (click)="startGame()" class="btn">Play Again</button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="instructions">
+    <p>Pop all the bubbles without getting hit! You can shoot multiple harpoons at once!</p>
+  </div>
+</div>
