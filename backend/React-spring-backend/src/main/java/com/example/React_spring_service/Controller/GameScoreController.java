@@ -14,7 +14,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/game-scores")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
+// @CrossOrigin(origins = "*")
 public class GameScoreController {
 
     private final GameScoreService gameScoreService;

@@ -9,7 +9,7 @@ This file is not proper, it has a bunch of copy past code. this is how you would
 
 import type { userDTO, RegisterDTO, commentsPostDTO } from '../types';
 
-const API_BASE_URL = 'http://localhost:8080/api';
+const API_BASE_URL = 'http://localhost:8080/api/react/api';
 
 class UserApiService {
   // 1. Private field to store the user (Memory Cache)

@@ -11,13 +11,18 @@ export interface CreatePostRequest {
 
 export const getCommunityPosts = async (): Promise<CommunityPost[]> => {
   try {
-    return await http<CommunityPost[]>('/community/posts');
+    const data = await http<CommunityPost[]>('/community/posts');
+    
+    // 💡 The "Better Way" to see what is returned:
+    console.log('📦 API Response Data:', data);
+    console.table(data); // Displays the array as a nice readable table in the console
+    
+    return data;
   } catch (error) {
-    console.error('Error fetching community posts:', error);
-    throw error;
+    console.error('❌ Community Service Error:', error);
+    throw error; 
   }
 };
-
 export const getCommunityPostsByType = async (type: string): Promise<CommunityPost[]> => {
   try {
     return await http<CommunityPost[]>(`/community/posts/type/${type}`);
