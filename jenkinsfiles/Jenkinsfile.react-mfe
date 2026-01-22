@@ -1,0 +1,122 @@
+pipeline {
+    agent any
+
+    parameters {
+        string(name: 'BRANCH', defaultValue: 'main', description: 'Branch to build')
+    }
+
+    environment {
+        SERVICE_NAME = 'react-mfe'
+        SERVICE_PATH = 'frontend/react-child-app/P3-react-child-app'
+        DOCKER_REGISTRY = "${env.DOCKER_REGISTRY}"
+        DOCKER_IMAGE = "${DOCKER_REGISTRY}/${SERVICE_NAME}"
+        NODE_VERSION = '18'
+        COMPOSE_SERVICE_NAME = 'react-frontend'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout([$class: 'GitSCM',
+                    branches: [[name: "*/${params.BRANCH}"]],
+                    userRemoteConfigs: [[url: 'https://github.com/251027-Java/P3-Group1.git']]
+                ])
+            }
+        }
+
+        stage('Build') {
+            steps {
+                dir("${SERVICE_PATH}") {
+                    script {
+                        echo "Building ${SERVICE_NAME}..."
+                        sh """
+                            npm install
+                            npm run build
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Test') {
+            steps {
+                dir("${SERVICE_PATH}") {
+                    script {
+                        echo "Running tests for ${SERVICE_NAME}..."
+                        sh 'npm run test -- --watchAll=false || true'
+                    }
+                }
+            }
+        }
+
+        stage('Static Analysis') {
+            steps {
+                dir("${SERVICE_PATH}") {
+                    script {
+                        echo "Running ESLint static analysis..."
+                        sh 'npm run lint || true'
+                    }
+                }
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                dir("${SERVICE_PATH}") {
+                    script {
+                        echo "Building Docker image for ${SERVICE_NAME}..."
+                        sh """
+                            docker build -t ${DOCKER_IMAGE}:${BUILD_NUMBER} \
+                                         -t ${DOCKER_IMAGE}:latest .
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Docker Push') {
+            when {
+                branch 'main'
+            }
+            steps {
+                script {
+                    echo "Pushing Docker image for ${SERVICE_NAME}..."
+                    withCredentials([usernamePassword(
+                        credentialsId: 'docker-registry-creds',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )]) {
+                        sh """
+                            echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin
+                            docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}
+                            docker push ${DOCKER_IMAGE}:latest
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Deploy') {
+            when {
+                branch 'main'
+            }
+            steps {
+                dir("${SERVICE_PATH}") {
+                    script {
+                        echo "Deploying via Docker Compose (Root)..."
+                        sh "docker-compose -f ../../../docker-compose.yml up --build -d ${COMPOSE_SERVICE_NAME}"
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+        success {
+            echo "Successfully deployed ${SERVICE_NAME} to local environment!"
+        }
+    }
+}
