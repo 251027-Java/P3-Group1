@@ -6,13 +6,19 @@ This document describes the User Profile management system for the React backend
 
 ---
 
-## Base URL
+## Base URLs
 
+**Through API Gateway (Production/Docker):**
 ```
-http://localhost:8080/api/users
+http://localhost:8080/api/react/users
 ```
 
-*(Adjust port based on your application.properties configuration)*
+**Direct to React Backend (Development):**
+```
+http://localhost:8081/users
+```
+
+**Note:** When running with docker-compose, always use the gateway URL (`/api/react/users`). The gateway routes requests to the React backend service.
 
 ---
 
@@ -44,7 +50,7 @@ The User entity includes the following fields:
 
 #### Get User by ID
 ```
-GET /api/users/{id}
+GET /api/react/users/{id}
 ```
 
 **Response (200 OK):**
@@ -75,12 +81,12 @@ GET /api/users/{id}
 
 #### Get User by Display Name
 ```
-GET /api/users/displayName/{displayName}
+GET /api/react/users/displayName/{displayName}
 ```
 
 **Example:**
 ```
-GET /api/users/displayName/JohnDoe
+GET /api/react/users/displayName/JohnDoe
 ```
 
 **Response:** Same as Get User by ID
@@ -89,7 +95,7 @@ GET /api/users/displayName/JohnDoe
 
 #### Update User Profile
 ```
-PUT /api/users/{id}/profile
+PUT /api/react/users/{id}/profile
 ```
 
 **Request Body:**
@@ -120,7 +126,7 @@ PUT /api/users/{id}/profile
 
 #### Get User Statistics
 ```
-GET /api/users/{id}/statistics
+GET /api/react/users/{id}/statistics
 ```
 
 **Response (200 OK):**
@@ -145,7 +151,7 @@ GET /api/users/{id}/statistics
 
 #### Get User's Friends
 ```
-GET /api/users/{id}/friends
+GET /api/react/users/{id}/friends
 ```
 
 **Response (200 OK):**
@@ -172,12 +178,12 @@ GET /api/users/{id}/friends
 
 #### Add Friend
 ```
-POST /api/users/{id}/friends/{friendId}
+POST /api/react/users/{id}/friends/{friendId}
 ```
 
 **Example:**
 ```
-POST /api/users/1/friends/2
+POST /api/react/users/1/friends/2
 ```
 
 **Response (200 OK):**
@@ -197,12 +203,12 @@ POST /api/users/1/friends/2
 
 #### Remove Friend
 ```
-DELETE /api/users/{id}/friends/{friendId}
+DELETE /api/react/users/{id}/friends/{friendId}
 ```
 
 **Example:**
 ```
-DELETE /api/users/1/friends/2
+DELETE /api/react/users/1/friends/2
 ```
 
 **Response (200 OK):**
@@ -224,7 +230,7 @@ DELETE /api/users/1/friends/2
 
 #### Get Games Library (IDs Only)
 ```
-GET /api/users/{id}/library
+GET /api/react/users/{id}/library
 ```
 
 **Response (200 OK):**
@@ -236,7 +242,7 @@ GET /api/users/{id}/library
 
 #### Get Games Library (Full Game Objects)
 ```
-GET /api/users/{id}/library/full
+GET /api/react/users/{id}/library/full
 ```
 
 **Response (200 OK):**
@@ -263,12 +269,12 @@ GET /api/users/{id}/library/full
 
 #### Add Game to Library
 ```
-POST /api/users/{id}/library/{gameId}
+POST /api/react/users/{id}/library/{gameId}
 ```
 
 **Example:**
 ```
-POST /api/users/1/library/5
+POST /api/react/users/1/library/5
 ```
 
 **Response (200 OK):**
@@ -283,12 +289,12 @@ POST /api/users/1/library/5
 
 #### Remove Game from Library
 ```
-DELETE /api/users/{id}/library/{gameId}
+DELETE /api/react/users/{id}/library/{gameId}
 ```
 
 **Example:**
 ```
-DELETE /api/users/1/library/5
+DELETE /api/react/users/1/library/5
 ```
 
 **Response (200 OK):**
@@ -305,7 +311,7 @@ DELETE /api/users/1/library/5
 
 #### Get Wishlist (IDs Only)
 ```
-GET /api/users/{id}/wishlist
+GET /api/react/users/{id}/wishlist
 ```
 
 **Response (200 OK):**
@@ -317,7 +323,7 @@ GET /api/users/{id}/wishlist
 
 #### Get Wishlist (Full Game Objects)
 ```
-GET /api/users/{id}/wishlist/full
+GET /api/react/users/{id}/wishlist/full
 ```
 
 **Response (200 OK):**
@@ -336,7 +342,7 @@ GET /api/users/{id}/wishlist/full
 
 #### Add Game to Wishlist
 ```
-POST /api/users/{id}/wishlist/{gameId}
+POST /api/react/users/{id}/wishlist/{gameId}
 ```
 
 **Response (200 OK):**
@@ -351,7 +357,7 @@ POST /api/users/{id}/wishlist/{gameId}
 
 #### Remove Game from Wishlist
 ```
-DELETE /api/users/{id}/wishlist/{gameId}
+DELETE /api/react/users/{id}/wishlist/{gameId}
 ```
 
 **Response (200 OK):**
@@ -368,7 +374,7 @@ DELETE /api/users/{id}/wishlist/{gameId}
 
 #### Get User's Rewards
 ```
-GET /api/users/{id}/rewards
+GET /api/react/users/{id}/rewards
 ```
 
 **Response (200 OK):**
@@ -410,7 +416,7 @@ POST /api/users/{id}/rewards/{rewardId}
 
 #### Remove Reward from User
 ```
-DELETE /api/users/{id}/rewards/{rewardId}
+DELETE /api/react/users/{id}/rewards/{rewardId}
 ```
 
 **Response (200 OK):**
@@ -427,7 +433,7 @@ DELETE /api/users/{id}/rewards/{rewardId}
 
 #### Get User's Notifications
 ```
-GET /api/users/{id}/notifications
+GET /api/react/users/{id}/notifications
 ```
 
 **Response (200 OK):**
@@ -477,7 +483,7 @@ POST /api/users/{id}/notifications
 
 #### Clear All Notifications
 ```
-DELETE /api/users/{id}/notifications
+DELETE /api/react/users/{id}/notifications
 ```
 
 **Response (200 OK):**
@@ -514,7 +520,7 @@ DELETE /api/users/1/notifications/0
 
 #### Get User's Community Posts
 ```
-GET /api/users/{id}/posts
+GET /api/react/users/{id}/posts
 ```
 
 **Response (200 OK):**
@@ -539,12 +545,12 @@ GET /api/users/{id}/posts
 ### Example 1: Get User Profile and Statistics
 
 ```javascript
-// Fetch user profile
-const userResponse = await fetch('http://localhost:8080/api/users/1');
+// Fetch user profile (through gateway)
+const userResponse = await fetch('http://localhost:8080/api/react/users/1');
 const user = await userResponse.json();
 
 // Fetch user statistics
-const statsResponse = await fetch('http://localhost:8080/api/users/1/statistics');
+const statsResponse = await fetch('http://localhost:8080/api/react/users/1/statistics');
 const stats = await statsResponse.json();
 
 console.log(`${user.displayName} has ${stats.totalGames} games`);
@@ -561,7 +567,7 @@ const updateData = {
   canSell: true
 };
 
-const response = await fetch('http://localhost:8080/api/users/1/profile', {
+const response = await fetch('http://localhost:8080/api/react/users/1/profile', {
   method: 'PUT',
   headers: {
     'Content-Type': 'application/json'
@@ -577,7 +583,7 @@ const updatedUser = await response.json();
 ### Example 3: Add Game to Library
 
 ```javascript
-const response = await fetch('http://localhost:8080/api/users/1/library/5', {
+const response = await fetch('http://localhost:8080/api/react/users/1/library/5', {
   method: 'POST'
 });
 
@@ -591,16 +597,16 @@ console.log(result.message); // "Game added to library successfully"
 
 ```javascript
 // Add friend
-await fetch('http://localhost:8080/api/users/1/friends/2', {
+await fetch('http://localhost:8080/api/react/users/1/friends/2', {
   method: 'POST'
 });
 
 // Get all friends
-const friendsResponse = await fetch('http://localhost:8080/api/users/1/friends');
+const friendsResponse = await fetch('http://localhost:8080/api/react/users/1/friends');
 const friends = await friendsResponse.json();
 
 // Remove friend
-await fetch('http://localhost:8080/api/users/1/friends/2', {
+await fetch('http://localhost:8080/api/react/users/1/friends/2', {
   method: 'DELETE'
 });
 ```
@@ -611,11 +617,11 @@ await fetch('http://localhost:8080/api/users/1/friends/2', {
 
 ```javascript
 // Get just game IDs
-const idsResponse = await fetch('http://localhost:8080/api/users/1/library');
+const idsResponse = await fetch('http://localhost:8080/api/react/users/1/library');
 const gameIds = await idsResponse.json(); // [1, 2, 3]
 
 // Get full game objects
-const fullResponse = await fetch('http://localhost:8080/api/users/1/library/full');
+const fullResponse = await fetch('http://localhost:8080/api/react/users/1/library/full');
 const games = await fullResponse.json(); // [{id: 1, title: "...", ...}, ...]
 ```
 
@@ -664,21 +670,21 @@ All endpoints return consistent error responses:
 ### Games Dashboard (Brody)
 ```javascript
 // Check if user owns a game
-const library = await fetch(`/api/users/${userId}/library`).then(r => r.json());
+const library = await fetch(`/api/react/users/${userId}/library`).then(r => r.json());
 const ownsGame = library.includes(gameId);
 ```
 
 ### Community (Osi)
 ```javascript
 // Get user info for post author
-const user = await fetch(`/api/users/${authorId}`).then(r => r.json());
+const user = await fetch(`/api/react/users/${authorId}`).then(r => r.json());
 // Display: user.displayName, user.displayImage
 ```
 
 ### Token Store (Omar)
 ```javascript
 // Award reward when user purchases tokens
-await fetch(`/api/users/${userId}/rewards/${rewardId}`, {
+await fetch(`/api/react/users/${userId}/rewards/${rewardId}`, {
   method: 'POST'
 });
 ```
@@ -686,12 +692,12 @@ await fetch(`/api/users/${userId}/rewards/${rewardId}`, {
 ### Game Page (Shara)
 ```javascript
 // Add game to library after purchase
-await fetch(`/api/users/${userId}/library/${gameId}`, {
+await fetch(`/api/react/users/${userId}/library/${gameId}`, {
   method: 'POST'
 });
 
 // Check if game is in wishlist
-const wishlist = await fetch(`/api/users/${userId}/wishlist`).then(r => r.json());
+const wishlist = await fetch(`/api/react/users/${userId}/wishlist`).then(r => r.json());
 const isWishlisted = wishlist.includes(gameId);
 ```
 
@@ -703,12 +709,12 @@ const isWishlisted = wishlist.includes(gameId);
 // userApi.ts
 export const userApi = {
   getUser: async (userId: number) => {
-    const response = await fetch(`/api/users/${userId}`);
+    const response = await fetch(`/api/react/users/${userId}`);
     return response.json();
   },
 
   updateProfile: async (userId: number, updates: any) => {
-    const response = await fetch(`/api/users/${userId}/profile`, {
+    const response = await fetch(`/api/react/users/${userId}/profile`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updates)
@@ -717,19 +723,19 @@ export const userApi = {
   },
 
   getUserLibrary: async (userId: number) => {
-    const response = await fetch(`/api/users/${userId}/library/full`);
+    const response = await fetch(`/api/react/users/${userId}/library/full`);
     return response.json();
   },
 
   addToLibrary: async (userId: number, gameId: number) => {
-    const response = await fetch(`/api/users/${userId}/library/${gameId}`, {
+    const response = await fetch(`/api/react/users/${userId}/library/${gameId}`, {
       method: 'POST'
     });
     return response.json();
   },
 
   getFriends: async (userId: number) => {
-    const response = await fetch(`/api/users/${userId}/friends`);
+    const response = await fetch(`/api/react/users/${userId}/friends`);
     return response.json();
   }
 };
@@ -742,22 +748,22 @@ export const userApi = {
 ### Using cURL
 
 ```bash
-# Get user
-curl http://localhost:8080/api/users/1
+# Get user (through gateway)
+curl http://localhost:8080/api/react/users/1
 
 # Update profile
-curl -X PUT http://localhost:8080/api/users/1/profile \
+curl -X PUT http://localhost:8080/api/react/users/1/profile \
   -H "Content-Type: application/json" \
   -d '{"displayName":"NewName","canSell":true}'
 
 # Add friend
-curl -X POST http://localhost:8080/api/users/1/friends/2
+curl -X POST http://localhost:8080/api/react/users/1/friends/2
 
 # Get library
-curl http://localhost:8080/api/users/1/library/full
+curl http://localhost:8080/api/react/users/1/library/full
 
 # Add to wishlist
-curl -X POST http://localhost:8080/api/users/1/wishlist/5
+curl -X POST http://localhost:8080/api/react/users/1/wishlist/5
 ```
 
 ---

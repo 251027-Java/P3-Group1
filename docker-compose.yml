@@ -1,35 +1,11 @@
-# Generated with assistance from GPT-5 mini
-# Reviewed and modified by Pranav Koduri and Donovan Rodgers
+# Docker Compose for Dev Environment (React + Angular Backends and Frontends)
+# Health checks and volumes preserved
 
 version: '3.8'
 services:
-  zookeeper:
-    image: confluentinc/cp-zookeeper:7.5.0
-    container_name: zookeeper
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-
-  kafka:
-    image: confluentinc/cp-kafka:7.5.0
-    container_name: kafka
-    depends_on:
-      zookeeper:
-        condition: service_healthy
-    ports:
-      - "9092:9092"
-    environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      # Defines how Kafka handles internal (Docker) vs external (Spring Boot) traffic
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-    healthcheck:
-      test: [ "CMD", "kafka-topics", "--bootstrap-server", "kafka:29092", "--list" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
+  # -----------------------
+  # POSTGRES
+  # -----------------------
   postgres:
     image: postgres:15
     container_name: postgres
@@ -43,22 +19,66 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD", "pg_isready", "-U", "user" ]
+      test: ["CMD-SHELL", "pg_isready -U user -d db"]
       interval: 10s
       timeout: 5s
       retries: 5
 
+  # -----------------------
+  # ZOOKEEPER
+  # -----------------------
+  zookeeper:
+    image: zookeeper:3.9
+    container_name: zookeeper
+    restart: always
+    ports:
+      - "2181:2181"
+    healthcheck:
+      test: ["CMD-SHELL", "echo ruok | nc -w 5 localhost 2181 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+
+
+  # -----------------------
+  # KAFKA
+  # -----------------------
+  kafka:
+    image: confluentinc/cp-kafka:7.6.1
+    container_name: kafka
+    restart: always
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - "9092:9092"
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 9092 || exit 1"]
+      interval: 10s
+      retries: 5
+
+  # -----------------------
+  # EUREKA SERVER
+  # -----------------------
   eureka-server:
     build:
       context: ./backend/eureka-server/eureka-server
     container_name: eureka-server
+    restart: always
     ports:
       - "8761:8761"
     healthcheck:
-      test: [ "CMD-SHELL", "curl -f http://localhost:8761/ || exit 1" ]
+      test: ["CMD-SHELL", "nc -z localhost 8761 || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
+
 
   api-gateway:
     build:
@@ -71,6 +91,16 @@ services:
         condition: service_healthy
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+      # --- GATEWAY ROUTES ADDED HERE ---
+      SPRING_CLOUD_GATEWAY_ROUTES_0_ID: react-backend-route
+      SPRING_CLOUD_GATEWAY_ROUTES_0_URI: lb://REACT-SPRING-SERVICE
+      SPRING_CLOUD_GATEWAY_ROUTES_0_PREDICATES_0: Path=/api/react/**
+      SPRING_CLOUD_GATEWAY_ROUTES_0_FILTERS_0: RewritePath=/api/react/(?<segment>.*), /$$\{segment}
+
+      SPRING_CLOUD_GATEWAY_ROUTES_1_ID: angular-backend-route
+      SPRING_CLOUD_GATEWAY_ROUTES_1_URI: lb://ANGULAR-SPRING-SERVICE
+      SPRING_CLOUD_GATEWAY_ROUTES_1_PREDICATES_0: Path=/api/angular/**
+      SPRING_CLOUD_GATEWAY_ROUTES_1_FILTERS_0: RewritePath=/api/angular/(?<segment>.*), /$$\{segment}
     healthcheck:
       test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health" ]
       interval: 10s
@@ -95,15 +125,16 @@ services:
       SPRING_DATASOURCE_USERNAME: user
       SPRING_DATASOURCE_PASSWORD: password
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      EUREKA_URI: http://eureka-server:8761/eureka
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
     volumes:
       - react_service_logs:/var/log/react-service
+      - ./backend/React-spring-backend:/app   # <-- mount source for hot reload
     healthcheck:
-      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1" ]
-      interval: 15s # Give it 15s between checks
-      timeout: 10s # Wait up to 10s for a response
-      retries: 5 # Allow 5 failures before marking "Unhealthy"
-      start_period: 40s # CRITICAL: Gives Spring Boot time to boot up before checking
+      test: ["CMD-SHELL", "nc -z localhost 8080 || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
 
   angular-backend:
     build:
@@ -123,63 +154,49 @@ services:
       SPRING_DATASOURCE_USERNAME: user
       SPRING_DATASOURCE_PASSWORD: password
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      EUREKA_URI: http://eureka-server:8761/eureka
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
     volumes:
       - angular_service_logs:/var/log/angular-service
+      - ./backend/Angular-spring-backend:/app   # <-- mount source for hot reload
     healthcheck:
-      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1" ]
-      interval: 15s # Give it 15s between checks
-      timeout: 10s # Wait up to 10s for a response
-      retries: 5 # Allow 5 failures before marking "Unhealthy"
-      start_period: 40s # CRITICAL: Gives Spring Boot time to boot up before checking
+      test: ["CMD-SHELL", "nc -z localhost 8080 || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
 
-  sonarqube:
-    image: sonarqube:lts-community
-    container_name: sonarqube
+  react-frontend:
+    build:
+      context: ./frontend/react-child-app/P3-react-child-app
+    container_name: react-frontend
+    depends_on:
+      api-gateway:
+        condition: service_healthy
     ports:
-      - "9000:9000"
+      - "5173:5173"
     environment:
-      - SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true
+      REACT_APP_API_URL: http://api-gateway:8080
     volumes:
-      - sonarqube_data:/opt/sonarqube/data
-      - sonarqube_extensions:/opt/sonarqube/extensions
-      - sonarqube_logs:/opt/sonarqube/logs
+      - ./frontend/react-child-app/P3-react-child-app:/app
+      - /app/node_modules
 
-#   react-frontend:
-#     build:
-#       context: ./frontend/react-child-app/P3-react-child-app
-#     container_name: react-frontend
-#     depends_on:
-#       react-backend:
-#         condition: service_healthy
-#     ports:
-#       - "3000:3000"
-#     environment:
-#       REACT_APP_API_URL: http://localhost:8080
-#     volumes:
-#       - ./frontend/react-child-app/P3-react-child-app:/app
-#       - app/node_modules
-
-#   angular-frontend:
-#     build:
-#       context: ./frontend/angular-child-app/angular-child-app
-#     container_name: angular-frontend
-#     depends_on:
-#       angular-backend:
-#         condition: service_healthy
-#     ports:
-#       - "4200:4200"
-#     environment:
-#       NG_API_URL: http://localhost:8080
-#     volumes:
-#       - ./frontend/angular-child-app/angular-child-app:/app
-#       - /app/node_modules
+  angular-frontend:
+    build:
+      context: ./frontend/angular-child-app/angular-child-app
+    container_name: angular-frontend
+    depends_on:
+      api-gateway:
+        condition: service_healthy
+    ports:
+      - "4200:4200"
+    environment:
+      NG_API_URL: http://api-gateway:8080
+      CHOKIDAR_USEPOLLING: "true"
+    volumes:
+      - ./frontend/angular-child-app/angular-child-app:/app
+      - /app/node_modules
 
 volumes:
   pgdata:
   react_service_logs:
   angular_service_logs:
-  # added
-  sonarqube_data:
-  sonarqube_extensions:
-  sonarqube_logs:

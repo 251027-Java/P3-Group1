@@ -1,29 +1,17 @@
-# Stage 1: Build the React application
-FROM node:18 AS build
+FROM node:20-alpine
 
 WORKDIR /app
 
-# Copy package.json and package-lock.json
+# Install dependencies first (to leverage Docker caching)
 COPY package*.json ./
+RUN npm install --legacy-peer-deps
 
-# Install dependencies
-RUN npm install
-
-# Copy the rest of the application code
+# Copy the rest of your source code
 COPY . .
 
-# Build the application
-RUN npm run build
+# Vite dev server default port
+EXPOSE 5173
 
-# Stage 2: Serve the application with Nginx
-FROM nginx:alpine
-
-# Copy the build output from the previous stage
-# Vite defaults to 'dist' output directory
-COPY --from=build /app/dist /usr/share/nginx/html
-
-# Expose port 80
-EXPOSE 80
-
-# Start Nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Run the dev server. 
+# We use --host to ensure it binds to 0.0.0.0 so you can access it from outside the container.
+CMD ["npm", "run", "dev", "--", "--host"]

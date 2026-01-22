@@ -18,7 +18,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
+// @CrossOrigin(origins = "*")
 public class GlobalController {
 
     private final GlobalDataService globalDataService;
@@ -97,7 +97,7 @@ public class GlobalController {
     public ResponseEntity<?> createPost(
             @RequestBody PostRequest request,
             @RequestHeader(value = "X-User-Id", required = false) Long userId) {
-        
+
         if (userId == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "X-User-Id header is required"));
