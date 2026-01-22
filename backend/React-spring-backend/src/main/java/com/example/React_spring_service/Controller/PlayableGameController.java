@@ -11,17 +11,18 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Controller for managing playable browser games (Bubble Trouble, Flappy Bird, etc.)
+ * Controller for managing playable browser games (Bubble Trouble, Flappy Bird,
+ * etc.)
  * Separate from store games which handle marketplace functionality
  */
 @RestController
 @RequestMapping("/api/playable-games")
-@CrossOrigin(origins = "*")
+// @CrossOrigin(origins = "*")
 public class PlayableGameController {
-    
+
     @Autowired
     private PlayableGameService playableGameService;
-    
+
     /**
      * Get all playable games
      * GET /api/playable-games
@@ -31,7 +32,7 @@ public class PlayableGameController {
         List<PlayableGame> games = playableGameService.getAllPlayableGames();
         return ResponseEntity.ok(games);
     }
-    
+
     /**
      * Get playable game by ID
      * GET /api/playable-games/{id}
@@ -42,7 +43,7 @@ public class PlayableGameController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-    
+
     /**
      * Get playable game by name
      * GET /api/playable-games/name/{name}
@@ -53,7 +54,7 @@ public class PlayableGameController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-    
+
     /**
      * Create a new playable game
      * POST /api/playable-games
@@ -64,11 +65,11 @@ public class PlayableGameController {
         try {
             String name = gameData.get("name");
             String description = gameData.get("description");
-            
+
             if (name == null || name.trim().isEmpty()) {
                 return ResponseEntity.badRequest().build();
             }
-            
+
             PlayableGame game = playableGameService.createPlayableGame(name, description);
             return ResponseEntity.status(HttpStatus.CREATED).body(game);
         } catch (RuntimeException e) {
@@ -77,7 +78,7 @@ public class PlayableGameController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
-    
+
     /**
      * Update playable game
      * PUT /api/playable-games/{id}
@@ -90,7 +91,7 @@ public class PlayableGameController {
         try {
             String name = gameData.get("name");
             String description = gameData.get("description");
-            
+
             PlayableGame game = playableGameService.updatePlayableGame(id, name, description);
             return ResponseEntity.ok(game);
         } catch (RuntimeException e) {
@@ -99,7 +100,7 @@ public class PlayableGameController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
-    
+
     /**
      * Delete playable game
      * DELETE /api/playable-games/{id}

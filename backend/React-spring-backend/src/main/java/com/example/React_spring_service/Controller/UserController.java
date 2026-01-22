@@ -14,7 +14,7 @@ import java.util.*;
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
+// @CrossOrigin(origins = "*")
 public class UserController {
 
     private final UserService userService;
@@ -73,11 +73,11 @@ public class UserController {
         try {
             String displayName = (String) updates.get("displayName");
             String displayImage = (String) updates.get("displayImage");
-            UserLevel level = updates.containsKey("level") 
-                    ? UserLevel.valueOf((String) updates.get("level")) 
+            UserLevel level = updates.containsKey("level")
+                    ? UserLevel.valueOf((String) updates.get("level"))
                     : null;
-            Boolean canSell = updates.containsKey("canSell") 
-                    ? (Boolean) updates.get("canSell") 
+            Boolean canSell = updates.containsKey("canSell")
+                    ? (Boolean) updates.get("canSell")
                     : null;
 
             User updatedUser = userService.updateUserProfile(id, displayName, displayImage, level, canSell);
@@ -135,8 +135,7 @@ public class UserController {
             User user = userService.addFriend(id, friendId);
             return ResponseEntity.ok(Map.of(
                     "message", "Friend added successfully",
-                    "user", user
-            ));
+                    "user", user));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", e.getMessage()));
@@ -155,8 +154,7 @@ public class UserController {
             User user = userService.removeFriend(id, friendId);
             return ResponseEntity.ok(Map.of(
                     "message", "Friend removed successfully",
-                    "user", user
-            ));
+                    "user", user));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", e.getMessage()));
@@ -207,8 +205,7 @@ public class UserController {
             User user = userService.addGameToLibrary(id, gameId);
             return ResponseEntity.ok(Map.of(
                     "message", "Game added to library successfully",
-                    "library", user.getGamesInLibrary()
-            ));
+                    "library", user.getGamesInLibrary()));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", e.getMessage()));
@@ -227,8 +224,7 @@ public class UserController {
             User user = userService.removeGameFromLibrary(id, gameId);
             return ResponseEntity.ok(Map.of(
                     "message", "Game removed from library successfully",
-                    "library", user.getGamesInLibrary()
-            ));
+                    "library", user.getGamesInLibrary()));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", e.getMessage()));
@@ -279,8 +275,7 @@ public class UserController {
             User user = userService.addGameToWishlist(id, gameId);
             return ResponseEntity.ok(Map.of(
                     "message", "Game added to wishlist successfully",
-                    "wishlist", user.getWishlist()
-            ));
+                    "wishlist", user.getWishlist()));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", e.getMessage()));
@@ -299,8 +294,7 @@ public class UserController {
             User user = userService.removeGameFromWishlist(id, gameId);
             return ResponseEntity.ok(Map.of(
                     "message", "Game removed from wishlist successfully",
-                    "wishlist", user.getWishlist()
-            ));
+                    "wishlist", user.getWishlist()));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", e.getMessage()));
@@ -336,8 +330,7 @@ public class UserController {
             User user = userService.addRewardToUser(id, rewardId);
             return ResponseEntity.ok(Map.of(
                     "message", "Reward added successfully",
-                    "rewards", user.getRewards()
-            ));
+                    "rewards", user.getRewards()));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", e.getMessage()));
@@ -356,8 +349,7 @@ public class UserController {
             User user = userService.removeRewardFromUser(id, rewardId);
             return ResponseEntity.ok(Map.of(
                     "message", "Reward removed successfully",
-                    "rewards", user.getRewards()
-            ));
+                    "rewards", user.getRewards()));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", e.getMessage()));
@@ -394,8 +386,7 @@ public class UserController {
             User user = userService.addNotification(id, notification);
             return ResponseEntity.ok(Map.of(
                     "message", "Notification added successfully",
-                    "notifications", user.getNotifications()
-            ));
+                    "notifications", user.getNotifications()));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", e.getMessage()));
@@ -411,8 +402,7 @@ public class UserController {
         try {
             userService.clearNotifications(id);
             return ResponseEntity.ok(Map.of(
-                    "message", "All notifications cleared successfully"
-            ));
+                    "message", "All notifications cleared successfully"));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", e.getMessage()));
@@ -431,8 +421,7 @@ public class UserController {
             User user = userService.removeNotification(id, index);
             return ResponseEntity.ok(Map.of(
                     "message", "Notification removed successfully",
-                    "notifications", user.getNotifications()
-            ));
+                    "notifications", user.getNotifications()));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", e.getMessage()));

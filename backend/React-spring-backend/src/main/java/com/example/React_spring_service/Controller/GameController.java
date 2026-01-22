@@ -18,7 +18,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/games")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
+// @CrossOrigin(origins = "*")
 public class GameController {
 
     private final GameRepository gameRepository;

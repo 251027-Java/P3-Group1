@@ -2,7 +2,7 @@
  * Simple HTTP client wrapper for API requests
  */
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api/react/api';
 
 export interface HttpOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE';

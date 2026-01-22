@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
+// @CrossOrigin(origins = "*")
 public class CoinController {
 
     private final UserRepository userRepository;
@@ -43,9 +43,11 @@ public class CoinController {
     @PostMapping("/{userId}/transactions")
     public ResponseEntity<?> createTransaction(@PathVariable Long userId, @RequestBody TransactionRequest req) {
         var userOpt = userRepository.findById(userId);
-        if (userOpt.isEmpty()) return ResponseEntity.notFound().build();
+        if (userOpt.isEmpty())
+            return ResponseEntity.notFound().build();
         User user = userOpt.get();
-        if (req.amount == null) return ResponseEntity.badRequest().body(Map.of("error", "amount_required"));
+        if (req.amount == null)
+            return ResponseEntity.badRequest().body(Map.of("error", "amount_required"));
 
         // Calculate current balance
         List<CoinTransaction> txsBefore = transactionRepository.findByUserIdOrderByTimestampDesc(userId);
