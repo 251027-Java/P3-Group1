@@ -51,12 +51,12 @@ services:
       - elk-net
 
   filebeat:
-    image: docker.elastic.co/beats/filebeat:8.11.0
+    build:
+      context: ./filebeat
     container_name: filebeat
     user: root
     volumes:
       - filebeat_data:/usr/share/filebeat/data
-      - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
       - p3-group1_react_service_logs:/var/log/react-service
       - p3-group1_angular_service_logs:/var/log/angular-service
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
@@ -65,7 +65,6 @@ services:
       - logstash
     networks:
       - elk-net
-    command: ["-e", "-c", "/usr/share/filebeat/filebeat.yml"]
 
 volumes:
   es_data:
