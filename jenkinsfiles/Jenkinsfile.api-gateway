@@ -1,0 +1,130 @@
+pipeline {
+    agent any
+    
+    parameters {
+        string(
+            name: 'BRANCH',
+            defaultValue: 'main',
+            description: 'Branch to build'
+        )
+    }
+    
+    tools {
+        jdk 'JDK21'
+        maven 'maven'
+    }
+    
+    environment {
+        SERVICE_NAME = 'api-gateway'
+        SERVICE_DIR = 'backend/api-gateway/gateway'
+        DOCKER_IMAGE = 'api-gateway'
+        GIT_REPO = 'https://github.com/251027-Java/P3-Group1.git'
+        COMPOSE_SERVICE_NAME = 'api-gateway'
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: "*/${params.BRANCH}"]],
+                    userRemoteConfigs: [[url: "${GIT_REPO}"]]
+                ])
+                script {
+                    env.BRANCH_NAME = params.BRANCH
+                    env.DOCKER_TAG = "${params.BRANCH}-${BUILD_NUMBER}"
+                }
+            }
+        }
+        
+        stage('Build & Test') {
+            steps {
+                dir("${SERVICE_DIR}") {
+                    sh 'mvn clean package'
+                }
+            }
+            post {
+                always {
+                    junit allowEmptyResults: true, testResults: "${SERVICE_DIR}/target/surefire-reports/*.xml"
+                    recordCoverage(
+                        tools: [[parser: 'JACOCO', pattern: "${SERVICE_DIR}/target/site/jacoco/jacoco.xml"]],
+                        id: 'jacoco',
+                        name: 'JaCoCo Coverage'
+                    )
+                }
+            }
+        }
+        
+        stage('Static Analysis') {
+            steps {
+                dir("${SERVICE_DIR}") {
+                    sh 'mvn checkstyle:checkstyle || true'
+                }
+            }
+            post {
+                always {
+                    recordIssues(
+                        enabledForFailure: true,
+                        tools: [checkStyle(pattern: "${SERVICE_DIR}/target/checkstyle-result.xml")],
+                        qualityGates: [[threshold: 1, type: 'TOTAL', unstable: false]]
+                    )
+                }
+            }
+        }
+        
+        stage('Docker Build & Push') {
+            steps {
+                dir("${SERVICE_DIR}") {
+                    withCredentials([usernamePassword(credentialsId: 'docker-registry-creds', 
+                                                      usernameVariable: 'DOCKER_USER', 
+                                                      passwordVariable: 'DOCKER_PASS')]) {
+                        sh """
+                            docker build -t \${DOCKER_USER}/${DOCKER_IMAGE}:${DOCKER_TAG} -t \${DOCKER_USER}/${DOCKER_IMAGE}:latest .
+                            echo \${DOCKER_PASS} | docker login -u \${DOCKER_USER} --password-stdin
+                            docker push \${DOCKER_USER}/${DOCKER_IMAGE}:${DOCKER_TAG}
+                            docker push \${DOCKER_USER}/${DOCKER_IMAGE}:latest
+                            docker logout
+                        """
+                    }
+                }
+            }
+        }
+        
+        stage('Deploy via Docker Compose') {
+            when {
+                branch 'main'
+            }
+            steps {
+                script {
+                    echo "Deploying ${SERVICE_NAME} via Docker Compose..."
+                    sh """
+                        cd ${SERVICE_DIR}
+                        docker-compose -f ../../../docker-compose.yml up --build -d ${COMPOSE_SERVICE_NAME}
+                    """
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            script {
+                withCredentials([usernamePassword(credentialsId: 'docker-registry-creds', 
+                                                  usernameVariable: 'DOCKER_USER', 
+                                                  passwordVariable: 'DOCKER_PASS')]) {
+                    sh "docker rmi \${DOCKER_USER}/${DOCKER_IMAGE}:${DOCKER_TAG} || true"
+                    sh "docker rmi \${DOCKER_USER}/${DOCKER_IMAGE}:latest || true"
+                }
+                sh 'docker image prune -f || true'
+                sh 'docker builder prune -f --keep-storage 2GB || true'
+            }
+            cleanWs(cleanWhenNotBuilt: true, deleteDirs: true, disableDeferredWipeout: true)
+        }
+        success {
+            echo "Successfully built and deployed ${DOCKER_IMAGE}:${DOCKER_TAG}"
+        }
+        failure {
+            echo "Pipeline failed for ${SERVICE_NAME}"
+        }
+    }
+}

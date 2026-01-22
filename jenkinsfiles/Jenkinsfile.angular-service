@@ -1,0 +1,139 @@
+pipeline {
+    agent any
+
+    tools {
+        jdk 'JDK21' 
+        maven 'maven'
+    }
+
+    parameters {
+        string(name: 'BRANCH', defaultValue: 'main', description: 'Branch to build')
+    }
+
+    environment {
+        SERVICE_NAME = 'angular-spring-backend'
+        SERVICE_PATH = 'backend/Angular-spring-backend'
+        DOCKER_REGISTRY = "${env.DOCKER_REGISTRY}"
+        DOCKER_IMAGE = "${DOCKER_REGISTRY}/${SERVICE_NAME}"
+        COMPOSE_SERVICE_NAME = 'angular-backend' 
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout([$class: 'GitSCM',
+                    branches: [[name: "*/${params.BRANCH}"]],
+                    userRemoteConfigs: [[url: 'https://github.com/251027-Java/P3-Group1.git']]
+                ])
+            }
+        }
+
+        stage('Build') {
+            steps {
+                dir("${SERVICE_PATH}") {
+                    script {
+                        echo "Building ${SERVICE_NAME}..."
+                        sh 'mvn clean compile'
+                    }
+                }
+            }
+        }
+
+        stage('Test') {
+            steps {
+                dir("${SERVICE_PATH}") {
+                    script {
+                        echo "Running tests for ${SERVICE_NAME}..."
+                        sh 'mvn test'
+                        
+                        junit '**/target/surefire-reports/*.xml'
+                        
+                        recordCoverage(
+                            tools: [[parser: 'JACOCO', pattern: '**/target/site/jacoco/jacoco.xml']],
+                            id: 'jacoco',
+                            name: 'JaCoCo Coverage'
+                        )
+                    }
+                }
+            }
+        }
+
+        stage('Static Analysis') {
+            steps {
+                dir("${SERVICE_PATH}") {
+                    script {
+                        echo "Running static analysis with Checkstyle..."
+                        sh 'mvn checkstyle:checkstyle || true'
+                        
+                        recordIssues(
+                            enabledForFailure: true,
+                            tools: [checkStyle(pattern: '**/target/checkstyle-result.xml')],
+                            qualityGates: [[threshold: 1, type: 'TOTAL', unstable: false]]
+                        )
+                    }
+                }
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                dir("${SERVICE_PATH}") {
+                    script {
+                        echo "Building Docker image for ${SERVICE_NAME}..."
+                        sh 'mvn package -DskipTests'
+                        
+                        sh """
+                            docker build -t ${DOCKER_IMAGE}:${BUILD_NUMBER} \
+                                         -t ${DOCKER_IMAGE}:latest .
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Docker Push') {
+            when {
+                branch 'main'
+            }
+            steps {
+                script {
+                    echo "Pushing Docker image for ${SERVICE_NAME}..."
+                    withCredentials([usernamePassword(
+                        credentialsId: 'docker-registry-creds',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )]) {
+                        sh """
+                            echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin
+                            docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}
+                            docker push ${DOCKER_IMAGE}:latest
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Deploy') {
+            when {
+                branch 'main'
+            }
+            steps {
+                dir("${SERVICE_PATH}") {
+                    script {
+                        echo "Deploying via Docker Compose (Root)..."
+                        sh "docker-compose -f ../../docker-compose.yml up --build -d ${COMPOSE_SERVICE_NAME}"
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+        success {
+            echo "Successfully deployed ${SERVICE_NAME} to local environment!"
+        }
+    }
+}
