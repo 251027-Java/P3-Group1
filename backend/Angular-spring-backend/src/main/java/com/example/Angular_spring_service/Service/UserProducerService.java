@@ -34,10 +34,30 @@ public class UserProducerService {
     private static final String TESTTOPIC = "test-update";
 
     public void sendMessage(String message, String key) {
-
         // Sending with userId as the Key ensures order consistency
         kafkaTemplate.send(TESTTOPIC, key, message);
         System.out.println("Sent user update to Kafka: " + message);
         log.info("Sent user update to Kafka (key = " + key + "): " + message);
+    }
+
+    public void logMessage(String message, int level) {
+        message = "LOG MESSAGE PRACTICE LEVEL " + level + ": " + message;
+        switch (level) {
+            case 1:
+                log.error(message);
+                break;
+            case 2:
+                log.warn(message);
+                break;
+            case 3:
+                log.info(message);
+                break;
+            case 4:
+                log.debug(message);
+                break;
+            default:
+                log.trace(message);
+                break;
+        }
     }
 }
