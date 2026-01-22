@@ -19,6 +19,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
+    private final UserProducerService userProducerService; // Added injection
 
     /**
      * Register a new user
@@ -44,6 +45,21 @@ public class UserService {
 
         // Save user to database
         User savedUser = userRepository.save(user);
+
+        // Send Kafka Event
+        try {
+            com.example.Angular_spring_service.Dtos.UserUpdateEvent event = com.example.Angular_spring_service.Dtos.UserUpdateEvent
+                    .builder()
+                    .userId(savedUser.getId())
+                    .username(savedUser.getUsername())
+                    .avatarUrl(savedUser.getAvatarUrl())
+                    .action("CREATE")
+                    .build();
+            userProducerService.sendUserEvent(event);
+        } catch (Exception e) {
+            System.err.println("Failed to send Kafka event: " + e.getMessage());
+            // Don't fail registration if Kafka fails, but log it
+        }
 
         // Generate JWT token
         String token = jwtUtils.generateToken(savedUser.getUsername());

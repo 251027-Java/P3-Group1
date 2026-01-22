@@ -1,5 +1,5 @@
 <div class="flex min-h-screen bg-[#0a0a0a] text-white">
-  
+
   <div class="w-full lg:w-1/2 flex flex-col justify-center px-8 sm:px-16 lg:px-24 py-12">
     <div class="max-w-md w-full mx-auto">
       <div class="mb-10">
@@ -7,34 +7,59 @@
         <p class="text-gray-500 text-sm">Start your journey as a creator or explorer today.</p>
       </div>
 
-      <form class="space-y-5">
+      <form [formGroup]="registerForm" (ngSubmit)="handleRegister()" class="space-y-5">
+
+        <!-- Error Message -->
+        <div *ngIf="errorMessage"
+          class="bg-red-500/10 border border-red-500/50 text-red-500 px-4 py-3 rounded-lg text-sm">
+          {{ errorMessage }}
+        </div>
+
         <div>
           <label class="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Display Name</label>
-          <input type="text" 
-                 class="w-full px-4 py-3 bg-[#151515] border border-gray-800 rounded-lg focus:ring-1 focus:ring-[#822C2C] focus:border-[#822C2C] outline-none transition-all placeholder:text-gray-700"
-                 placeholder="e.g. PixelWarrior">
+          <input type="text" formControlName="username"
+            class="w-full px-4 py-3 bg-[#151515] border border-gray-800 rounded-lg focus:ring-1 focus:ring-[#822C2C] focus:border-[#822C2C] outline-none transition-all placeholder:text-gray-700"
+            [ngClass]="{'border-red-500': registerForm.get('username')?.invalid && registerForm.get('username')?.touched}"
+            placeholder="e.g. PixelWarrior">
+          <div *ngIf="registerForm.get('username')?.invalid && registerForm.get('username')?.touched"
+            class="text-red-500 text-xs mt-1">
+            <span *ngIf="registerForm.get('username')?.errors?.['minlength']">Username must be at least 3
+              characters</span>
+            <span *ngIf="registerForm.get('username')?.errors?.['required']">Username is required</span>
+          </div>
         </div>
 
         <div>
           <label class="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Email Address</label>
-          <input type="email" 
-                 class="w-full px-4 py-3 bg-[#151515] border border-gray-800 rounded-lg focus:ring-1 focus:ring-[#822C2C] focus:border-[#822C2C] outline-none transition-all placeholder:text-gray-700"
-                 placeholder="captain@p3fleet.com">
+          <input type="email" formControlName="email"
+            class="w-full px-4 py-3 bg-[#151515] border border-gray-800 rounded-lg focus:ring-1 focus:ring-[#822C2C] focus:border-[#822C2C] outline-none transition-all placeholder:text-gray-700"
+            [ngClass]="{'border-red-500': registerForm.get('email')?.invalid && registerForm.get('email')?.touched}"
+            placeholder="captain@p3fleet.com">
+          <div *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched"
+            class="text-red-500 text-xs mt-1">
+            Please enter a valid email
+          </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Password</label>
-            <input type="password" 
-                   class="w-full px-4 py-3 bg-[#151515] border border-gray-800 rounded-lg focus:ring-1 focus:ring-[#822C2C] focus:border-[#822C2C] outline-none transition-all"
-                   placeholder="••••••••">
+            <input type="password" formControlName="password"
+              class="w-full px-4 py-3 bg-[#151515] border border-gray-800 rounded-lg focus:ring-1 focus:ring-[#822C2C] focus:border-[#822C2C] outline-none transition-all"
+              [ngClass]="{'border-red-500': registerForm.get('password')?.invalid && registerForm.get('password')?.touched}"
+              placeholder="••••••••">
           </div>
           <div>
             <label class="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Confirm</label>
-            <input type="password" 
-                   class="w-full px-4 py-3 bg-[#151515] border border-gray-800 rounded-lg focus:ring-1 focus:ring-[#822C2C] focus:border-[#822C2C] outline-none transition-all"
-                   placeholder="••••••••">
+            <input type="password" formControlName="confirmPassword"
+              class="w-full px-4 py-3 bg-[#151515] border border-gray-800 rounded-lg focus:ring-1 focus:ring-[#822C2C] focus:border-[#822C2C] outline-none transition-all"
+              [ngClass]="{'border-red-500': registerForm.get('confirmPassword')?.touched && registerForm.errors?.['mismatch']}"
+              placeholder="••••••••">
           </div>
+        </div>
+        <div *ngIf="registerForm.errors?.['mismatch'] && registerForm.get('confirmPassword')?.touched"
+          class="text-red-500 text-xs text-center">
+          Passwords do not submit
         </div>
 
         <div class="p-4 bg-[#151515]/50 border border-gray-800 rounded-lg flex items-start space-x-3">
@@ -46,27 +71,29 @@
         </div>
 
         <div class="pt-2">
-          <button type="submit" 
-                  class="w-full py-4 bg-[#822C2C] hover:bg-[#a13737] font-black uppercase tracking-tighter rounded-lg transition-all transform active:scale-95 shadow-lg shadow-red-900/30">
-            CREATE ACCOUNT
+          <button type="submit" [disabled]="loading"
+            class="w-full py-4 bg-[#822C2C] hover:bg-[#a13737] font-black uppercase tracking-tighter rounded-lg transition-all transform active:scale-95 shadow-lg shadow-red-900/30 disabled:opacity-50 disabled:active:scale-100">
+            <span *ngIf="!loading">CREATE ACCOUNT</span>
+            <span *ngIf="loading">CREATING...</span>
           </button>
         </div>
       </form>
 
       <p class="mt-8 text-center text-sm text-gray-500">
-        Already have an identity? 
+        Already have an identity?
         <a (click)="handleSignIn()" class="text-[#822C2C] font-bold hover:underline">Sign In</a>
       </p>
     </div>
   </div>
 
-  <div class="hidden lg:flex w-1/2 relative flex-col justify-end px-12 py-12" 
-       style="background: linear-gradient(225deg, #1a1a1a 0%, #000000 100%);">
-    
+  <div class="hidden lg:flex w-1/2 relative flex-col justify-end px-12 py-12"
+    style="background: linear-gradient(225deg, #1a1a1a 0%, #000000 100%);">
+
     <div class="absolute inset-0 overflow-hidden">
-        <div class="absolute bottom-[-20%] left-[-20%] w-[80%] h-[80%] bg-[#822C2C] rounded-full blur-[120px] opacity-20"></div>
+      <div class="absolute bottom-[-20%] left-[-20%] w-[80%] h-[80%] bg-[#822C2C] rounded-full blur-[120px] opacity-20">
+      </div>
     </div>
-    
+
     <div class="relative z-10 border-l-2 border-[#822C2C] pl-8">
       <blockquote class="text-3xl font-light italic text-gray-300 leading-tight">
         "The best way to predict the future of gaming is to build it yourself."

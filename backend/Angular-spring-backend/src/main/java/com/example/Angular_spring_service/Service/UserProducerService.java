@@ -4,7 +4,9 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import com.example.Angular_spring_service.Dtos.UserUpdateEvent;
-import com.example.Angular_spring_service.Entities.User;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
 
 import lombok.RequiredArgsConstructor;
 
@@ -12,29 +14,17 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserProducerService {
 
-    // private final KafkaTemplate<String, UserUpdateEvent> kafkaTemplate;
-    // private static final String TOPIC = "user-updates";
-    // private static final String TESTTOPIC = "test-update";
+    private final KafkaTemplate<String, UserUpdateEvent> kafkaTemplate;
+    private static final String TOPIC = "user-events";
 
-    // ic void sendMessage(User user, String action) {
-    // teEvent event = UserUpdateEvent.builder()
-    // .userId(user.getId())
-    // .username(user.getUsername())
-    // .avatarUrl(user.getAvatarUrl())
-    // .action(action) // e.g., "UPDATE"
-    // .build();
+    public void sendUserEvent(UserUpdateEvent event) {
+        Message<UserUpdateEvent> message = MessageBuilder
+                .withPayload(event)
+                .setHeader(KafkaHeaders.TOPIC, TOPIC)
+                .setHeader(KafkaHeaders.KEY, event.getUsername())
+                .build();
 
-    // // Sending with userId as the Key ensures order consistency
-    // kafkaTemplate.send(TOPIC, user.getId().toString(), event);
-    //
-
-    private final KafkaTemplate<String, String> kafkaTemplate;
-    private static final String TESTTOPIC = "test-update";
-
-    public void sendMessage(String message, String key) {
-
-        // Sending with userId as the Key ensures order consistency
-        kafkaTemplate.send(TESTTOPIC, key, message);
-        System.out.println("Sent user update to Kafka: " + message);
+        kafkaTemplate.send(message);
+        System.out.println("Sent user event to Kafka: " + event);
     }
 }
