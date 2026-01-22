@@ -57,8 +57,8 @@ services:
     volumes:
       - filebeat_data:/usr/share/filebeat/data
       - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
-      - react_service_logs:/var/log/react-service
-      - angular_service_logs:/var/log/angular-service
+      - react_service_logs:/var/log/react-service:ro
+      - angular_service_logs:/var/log/angular-service:ro
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
     depends_on:

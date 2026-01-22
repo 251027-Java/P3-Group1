@@ -25,7 +25,6 @@ filebeat.inputs:
   processors:
     - add_docker_metadata: {}
 
-
 output.logstash:
   hosts: ["logstash:5044"]
 
