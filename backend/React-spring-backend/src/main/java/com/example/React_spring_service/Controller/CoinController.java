@@ -18,11 +18,13 @@ import com.example.React_spring_service.Repositories.CoinTransactionRepository;
 import com.example.React_spring_service.Repositories.UserRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
+@Slf4j
 public class CoinController {
 
     private final UserRepository userRepository;
@@ -30,8 +32,10 @@ public class CoinController {
 
     @GetMapping("/{userId}/balance")
     public ResponseEntity<Long> getBalance(@PathVariable Long userId) {
+        log.info("Fetching balance for user ID: " + userId);
         List<CoinTransaction> txs = transactionRepository.findByUserIdOrderByTimestampDesc(userId);
         long sum = txs.stream().mapToLong(t -> t.getAmount()).sum();
+        log.info("Balance for user ID " + userId + " is: " + sum);
         return ResponseEntity.ok(sum);
     }
 
@@ -42,10 +46,18 @@ public class CoinController {
 
     @PostMapping("/{userId}/transactions")
     public ResponseEntity<?> createTransaction(@PathVariable Long userId, @RequestBody TransactionRequest req) {
+        log.info("Creating transaction for user ID: " + userId + " with amount: " + req.amount);
+        
         var userOpt = userRepository.findById(userId);
-        if (userOpt.isEmpty()) return ResponseEntity.notFound().build();
+        if (userOpt.isEmpty()) {
+            log.debug("User with ID " + userId + " not found.");
+            return ResponseEntity.notFound().build();
+        }
         User user = userOpt.get();
-        if (req.amount == null) return ResponseEntity.badRequest().body(Map.of("error", "amount_required"));
+        if (req.amount == null) {
+            log.error("Amount is required for transaction.");
+            return ResponseEntity.badRequest().body(Map.of("error", "amount_required"));
+        }
 
         // Calculate current balance
         List<CoinTransaction> txsBefore = transactionRepository.findByUserIdOrderByTimestampDesc(userId);
@@ -67,6 +79,8 @@ public class CoinController {
         // return new balance
         List<CoinTransaction> txs = transactionRepository.findByUserIdOrderByTimestampDesc(userId);
         long sum = txs.stream().mapToLong(t -> t.getAmount()).sum();
+
+        log.info("transaction = " + saved + ", balance = " + sum);
 
         return ResponseEntity.ok(Map.of("transaction", saved, "balance", sum));
     }

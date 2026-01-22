@@ -7,9 +7,11 @@ import com.example.Angular_spring_service.Dtos.UserUpdateEvent;
 import com.example.Angular_spring_service.Entities.User;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserProducerService {
 
     // private final KafkaTemplate<String, UserUpdateEvent> kafkaTemplate;
@@ -36,5 +38,6 @@ public class UserProducerService {
         // Sending with userId as the Key ensures order consistency
         kafkaTemplate.send(TESTTOPIC, key, message);
         System.out.println("Sent user update to Kafka: " + message);
+        log.info("Sent user update to Kafka (key = " + key + "): " + message);
     }
 }
