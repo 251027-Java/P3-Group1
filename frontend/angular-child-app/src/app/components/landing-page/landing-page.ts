@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-landing-page',
+  standalone: true,
   imports: [CommonModule],
   templateUrl: './landing-page.html',
   styleUrl: './landing-page.css',
@@ -17,7 +18,7 @@ export class LandingPage {
 
   constructor(
     private router: Router,
-  ){}
+  ) { }
 
   handleGetStarted(): void {
     console.log("this was clicked.")

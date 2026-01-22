@@ -7,7 +7,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install
+RUN npm install --legacy-peer-deps
 
 # Copy source code
 COPY . .
@@ -22,7 +22,7 @@ FROM nginx:alpine
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy built assets - Angular outputs to dist/angular-child-app/browser
-COPY --from=build /app/dist/angular-child-app/browser /usr/share/nginx/html
+COPY --from=build /app/dist/angular-child-app /usr/share/nginx/html
 
 # Expose port
 EXPOSE 4200

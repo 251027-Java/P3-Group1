@@ -11,7 +11,7 @@ enableProdMode();
 
 // Single-SPA lifecycle configuration
 const lifecycles = singleSpaAngular({
-    bootstrapFunction: (singleSpaProps) => {
+    bootstrapFunction: (singleSpaProps: any) => {
         // Merge single-spa extra providers with app config
         const mergedConfig = {
             ...appConfig,
@@ -28,10 +28,8 @@ const lifecycles = singleSpaAngular({
     NgZone,
 });
 
-// Export lifecycle methods
+// Export lifecycle methods for single-spa
+// single-spa-angular returns an object with bootstrap, mount, unmount
 export const bootstrap = lifecycles.bootstrap;
 export const mount = lifecycles.mount;
 export const unmount = lifecycles.unmount;
-
-// Export as default for bundlers that prefer it
-export default lifecycles;

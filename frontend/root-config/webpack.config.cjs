@@ -1,26 +1,19 @@
-const { merge } = require("webpack-merge");
-const singleSpaDefaults = require("webpack-config-single-spa");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const path = require("path");
 
-module.exports = (webpackConfigEnv, argv) => {
+module.exports = (webpackConfigEnv = {}, argv) => {
     const orgName = "gamehub";
-    const defaultConfig = singleSpaDefaults({
-        orgName,
-        projectName: "root-config",
-        webpackConfigEnv,
-        argv,
-        disableHtmlGeneration: true,
-    });
+    const isProduction = argv.mode === "production";
 
-    return merge(defaultConfig, {
-        // Explicit entry point for TypeScript file
+    return {
         entry: path.resolve(__dirname, "src/gamehub-root-config.ts"),
-        // Disable minification to avoid Terser/SystemJS conflicts
-        optimization: {
-            minimize: false,
+        output: {
+            filename: `${orgName}-root-config.js`,
+            path: path.resolve(__dirname, "dist"),
+            libraryTarget: "system",
+            publicPath: "",
+            clean: true,
         },
-        // Add TypeScript support
         resolve: {
             extensions: [".ts", ".tsx", ".js", ".jsx"],
         },
@@ -33,12 +26,13 @@ module.exports = (webpackConfigEnv, argv) => {
                 },
             ],
         },
+        externals: ["single-spa"],
         plugins: [
             new HtmlWebpackPlugin({
                 inject: false,
                 template: "src/index.ejs",
                 templateParameters: {
-                    isLocal: webpackConfigEnv && webpackConfigEnv.isLocal,
+                    isLocal: webpackConfigEnv.isLocal || false,
                     orgName,
                 },
             }),
@@ -49,6 +43,8 @@ module.exports = (webpackConfigEnv, argv) => {
                 "Access-Control-Allow-Origin": "*",
             },
             allowedHosts: "all",
+            port: 9000,
         },
-    });
+        devtool: isProduction ? "source-map" : "eval-source-map",
+    };
 };

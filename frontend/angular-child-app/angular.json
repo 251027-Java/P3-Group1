@@ -14,9 +14,15 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular/build:application",
+          "builder": "@angular-builders/custom-webpack:browser",
           "options": {
-            "browser": "src/main.single-spa.ts",
+            "customWebpackConfig": {
+              "path": "./extra-webpack.config.js",
+              "libraryName": "angular-auth",
+              "libraryTarget": "umd"
+            },
+            "main": "src/main.single-spa.ts",
+            "index": "src/index.html",
             "tsConfig": "tsconfig.app.json",
             "outputPath": "dist/angular-child-app",
             "assets": [
