@@ -51,14 +51,14 @@ services:
       - elk-net
 
   filebeat:
-    image: docker.elastic.co/beats/filebeat:8.11.0
+    build:
+      context: ./filebeat
     container_name: filebeat
     user: root
     volumes:
       - filebeat_data:/usr/share/filebeat/data
-      - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
-      - react_service_logs:/var/log/react-service:ro
-      - angular_service_logs:/var/log/angular-service:ro
+      - p3-group1_react_service_logs:/var/log/react-service
+      - p3-group1_angular_service_logs:/var/log/angular-service
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
     depends_on:
@@ -71,10 +71,10 @@ volumes:
     driver: local
   filebeat_data:
     driver: local
-  react_service_logs:
-    driver: local
-  angular_service_logs:
-    driver: local
+  p3-group1_react_service_logs:
+    external: true
+  p3-group1_angular_service_logs:
+    external: true
 
 networks:
   elk-net:

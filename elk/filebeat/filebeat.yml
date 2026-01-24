@@ -16,12 +16,17 @@ filebeat.inputs:
   close_inactive: 1h
 
 # docker file logs
-- type: docker
-  containers.ids:
-    - "*"
-  multiline.pattern: '^\s'
-  multiline.negate: false
-  multiline.match: after
+- type: filestream
+  id: docker-logs
+  enabled: true
+  paths:
+    - /var/lib/docker/containers/*/*.log
+
+  parsers:
+    - container:
+        stream: all
+        format: docker
+
   processors:
     - add_docker_metadata: {}
 
